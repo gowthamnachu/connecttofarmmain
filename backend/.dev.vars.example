@@ -1,0 +1,12 @@
+# Copy to .dev.vars for local `wrangler dev` (never commit the real .dev.vars file)
+DATABASE_URL=postgresql://user:password@ep-example.neon.tech/connecttofarm?sslmode=require
+JWT_SECRET=replace-with-a-long-random-string
+JWT_REFRESH_SECRET=replace-with-another-long-random-string
+FIREBASE_PROJECT_ID=connect-to-farm-app
+RAZORPAY_KEY_ID=rzp_test_xxxxxxxx
+RAZORPAY_KEY_SECRET=replace-with-razorpay-secret
+RAZORPAY_WEBHOOK_SECRET=replace-with-razorpay-webhook-secret
+NIMBUSPOST_EMAIL=ops@connecttofarm.com
+NIMBUSPOST_PASSWORD=replace-with-nimbuspost-password
+NIMBUSPOST_WEBHOOK_SECRET=replace-with-nimbuspost-webhook-secret
+OLA_MAPS_API_KEY=replace-with-ola-maps-key
