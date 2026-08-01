@@ -11,44 +11,56 @@ import type { AppEnv } from '../types/bindings'
 
 const app = new Hono<AppEnv>()
 
-// Strips spaces, dashes, and parentheses admins commonly type/paste into phone fields (e.g. "98765 43210",
-// "+91-98765-43210") before enforcing the digits-only shape, so those cosmetic separators never trigger
-// a validation failure.
 const phoneField = z.preprocess(
   (val) => (typeof val === 'string' ? val.replace(/[\s()-]/g, '') : val),
   z.string().regex(/^\+?[0-9]{10,15}$/, 'Phone must be 10-15 digits, optionally starting with +'),
 )
 
-// Deliberately minimal onboarding fields, per business decision (South-India, simple entities only).
+// Enterprise farmer onboarding schema with complete profile entities
 const onboardSchema = z.object({
   name: z.string().trim().min(2).max(100),
   age: z.number().int().min(18).max(100).optional(),
   phone: phoneField,
+  photoUrl: z.string().url().or(z.literal('')).optional(),
+  bannerUrl: z.string().url().or(z.literal('')).optional(),
+  bio: z.string().trim().max(1000).optional(),
+  area: z.string().trim().max(150).optional(),
   village: z.string().trim().max(120).optional(),
   district: z.string().trim().max(120).optional(),
   state: z.string().trim().max(120).optional(),
-  photoUrl: z.string().url().optional(),
-  upiId: z.string().max(100).optional(),
+  pincode: z.string().trim().max(10).optional(),
+  landAreaAcres: z.number().positive().optional(),
+  experienceYears: z.number().int().min(0).optional(),
+  upiId: z.string().trim().max(100).optional(),
+  certifiedByConnectToFarm: z.boolean().default(true),
 })
 
 function generateTempPassword() {
-  // 10-char random alphanumeric, shown once to the admin to hand off to the farmer.
   const bytes = crypto.getRandomValues(new Uint8Array(8))
   return [...bytes].map((b) => b.toString(36).padStart(2, '0')).join('').slice(0, 10)
 }
 
-// Public: allows customer app to display farmers (e.g. "Meet Our Farmers" section).
+// Public: allows customer app to display farmers with photos, bio, village, and certification
 app.get('/public', async (c) => {
   const db = createDb(c.env.DATABASE_URL)
   const rows = await db
     .select({
       id: farmers.id,
       name: farmers.name,
+      age: farmers.age,
+      phone: farmers.phone,
+      photoUrl: farmers.photoUrl,
+      bannerUrl: farmers.bannerUrl,
+      bio: farmers.bio,
+      area: farmers.area,
       village: farmers.village,
       district: farmers.district,
       state: farmers.state,
+      pincode: farmers.pincode,
+      landAreaAcres: farmers.landAreaAcres,
+      experienceYears: farmers.experienceYears,
       certificationStatus: farmers.certificationStatus,
-      photoUrl: farmers.photoUrl,
+      certifiedByConnectToFarm: farmers.certifiedByConnectToFarm,
     })
     .from(farmers)
     .where(eq(farmers.isActive, true))
@@ -61,7 +73,7 @@ app.get('/', requireAuth, requireRole('admin'), async (c) => {
   return c.json({ farmers: rows.map(({ passwordHash: _passwordHash, ...rest }) => rest) })
 })
 
-// Admin onboards a farmer and receives a one-time temporary password to share with them.
+// Admin onboards a farmer with complete profile metadata
 app.post('/', requireAuth, requireRole('admin'), validateBody(onboardSchema), async (c) => {
   const data = c.get('validatedBody' as never) as z.infer<typeof onboardSchema>
   const db = createDb(c.env.DATABASE_URL)
@@ -72,11 +84,49 @@ app.post('/', requireAuth, requireRole('admin'), validateBody(onboardSchema), as
 
   const [created] = await db
     .insert(farmers)
-    .values({ ...data, passwordHash, createdBy: auth.id })
+    .values({
+      ...data,
+      landAreaAcres: data.landAreaAcres ? data.landAreaAcres.toString() : undefined,
+      passwordHash,
+      createdBy: auth.id,
+    })
     .returning()
 
   const { passwordHash: _passwordHash, ...safeFarmer } = created
   return c.json({ farmer: safeFarmer, tempPassword }, 201)
+})
+
+app.put('/:id', requireAuth, requireRole('admin'), validateBody(onboardSchema.partial()), async (c) => {
+  const id = c.req.param('id')
+  const data = c.get('validatedBody' as never) as Partial<z.infer<typeof onboardSchema>>
+  const db = createDb(c.env.DATABASE_URL)
+
+  const [updated] = await db
+    .update(farmers)
+    .set({
+      ...(data.name ? { name: data.name } : {}),
+      ...(data.age !== undefined ? { age: data.age } : {}),
+      ...(data.phone ? { phone: data.phone } : {}),
+      ...(data.photoUrl !== undefined ? { photoUrl: data.photoUrl || null } : {}),
+      ...(data.bannerUrl !== undefined ? { bannerUrl: data.bannerUrl || null } : {}),
+      ...(data.bio !== undefined ? { bio: data.bio } : {}),
+      ...(data.area !== undefined ? { area: data.area } : {}),
+      ...(data.village !== undefined ? { village: data.village } : {}),
+      ...(data.district !== undefined ? { district: data.district } : {}),
+      ...(data.state !== undefined ? { state: data.state } : {}),
+      ...(data.pincode !== undefined ? { pincode: data.pincode } : {}),
+      ...(data.landAreaAcres !== undefined ? { landAreaAcres: data.landAreaAcres.toString() } : {}),
+      ...(data.experienceYears !== undefined ? { experienceYears: data.experienceYears } : {}),
+      ...(data.upiId !== undefined ? { upiId: data.upiId } : {}),
+      ...(data.certifiedByConnectToFarm !== undefined ? { certifiedByConnectToFarm: data.certifiedByConnectToFarm } : {}),
+      updatedAt: new Date(),
+    })
+    .where(eq(farmers.id, id))
+    .returning()
+
+  if (!updated) return c.json({ error: 'Farmer not found' }, 404)
+  const { passwordHash: _passwordHash, ...safeFarmer } = updated
+  return c.json({ farmer: safeFarmer })
 })
 
 app.patch(
@@ -109,7 +159,6 @@ app.patch('/:id/reset-password', requireAuth, requireRole('admin'), async (c) =>
   return c.json({ tempPassword })
 })
 
-// Farmer self-service (read-only profile + toggling their own products' availability).
 app.get('/me', requireAuth, requireRole('farmer'), async (c) => {
   const auth = c.get('auth')
   const db = createDb(c.env.DATABASE_URL)

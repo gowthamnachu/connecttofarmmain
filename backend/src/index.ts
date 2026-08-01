@@ -17,6 +17,7 @@ import payments from './routes/payments'
 import webhooksNimbuspost from './routes/webhooks.nimbuspost'
 import maps from './routes/maps'
 import media from './routes/media'
+import wishlist from './routes/wishlist'
 
 const app = new Hono<AppEnv>()
 
@@ -52,6 +53,7 @@ app.route('/payments', payments)
 app.route('/webhooks/nimbuspost', webhooksNimbuspost)
 app.route('/maps', maps)
 app.route('/media', media)
+app.route('/wishlist', wishlist)
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {

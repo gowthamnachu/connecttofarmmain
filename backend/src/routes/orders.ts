@@ -7,7 +7,7 @@ import { requireAuth } from '../middleware/auth'
 import { requireRole } from '../middleware/rbac'
 import { validateBody } from '../middleware/validate'
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from '../lib/razorpay'
-import { createNimbuspostShipment } from '../lib/nimbuspost'
+import { createNimbuspostShipment, getNimbuspostShippingLabel } from '../lib/nimbuspost'
 import { STORE_ORIGIN, FREE_DELIVERY_THRESHOLD, FLAT_DELIVERY_FEE } from '../config/store'
 import type { AppEnv } from '../types/bindings'
 
@@ -18,9 +18,6 @@ function generateOrderNumber() {
 }
 
 // Places an order from the customer's current cart.
-// NOTE: Neon's HTTP driver does not support interactive multi-statement transactions;
-// operations below run sequentially. Migrate to Neon's pooled/websocket driver with
-// db.transaction() if strict atomicity across these writes becomes a requirement.
 app.post(
   '/',
   requireAuth,
@@ -147,40 +144,6 @@ app.post('/:id/confirm-payment', requireAuth, requireRole('customer'), validateB
     .set({ paymentStatus: 'paid', status: 'confirmed', razorpayPaymentId, updatedAt: new Date() })
     .where(eq(orders.id, orderId))
 
-  const [address] = await db.select().from(addresses).where(eq(addresses.id, order.addressId)).limit(1)
-  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId))
-
-  try {
-    const shipment = await createNimbuspostShipment({
-      email: c.env.NIMBUSPOST_EMAIL,
-      password: c.env.NIMBUSPOST_PASSWORD,
-      orderNumber: order.orderNumber,
-      origin: STORE_ORIGIN,
-      destination: {
-        name: auth.phone,
-        phone: auth.phone,
-        address: `${address!.line1}${address!.line2 ? ', ' + address!.line2 : ''}`,
-        city: address!.city,
-        state: address!.state,
-        pincode: address!.pincode,
-      },
-      items: items.map((i) => ({ name: i.productName, qty: i.quantity, price: Number(i.unitPrice) })),
-      codAmount: 0,
-      paymentType: 'prepaid',
-    })
-
-    await db.insert(shipments).values({
-      orderId,
-      nimbuspostShipmentId: shipment.data.shipment_id,
-      awbNumber: shipment.data.awb_number,
-      courierName: shipment.data.courier_name,
-      status: 'booked',
-    })
-  } catch (err) {
-    // Payment already succeeded; shipment creation can be retried by ops without blocking the customer.
-    console.error('NimbusPost shipment creation failed', err)
-  }
-
   return c.json({ success: true })
 })
 
@@ -209,10 +172,143 @@ app.get('/:id', requireAuth, requireRole('customer'), async (c) => {
   return c.json({ order, items, shipment: shipment ?? null })
 })
 
+// ADMIN API: Fetch all orders with shipment details and NimbusPost label URL
 app.get('/admin/all', requireAuth, requireRole('admin'), async (c) => {
   const db = createDb(c.env.DATABASE_URL)
   const rows = await db.select().from(orders).orderBy(desc(orders.createdAt))
-  return c.json({ orders: rows })
+
+  const results = await Promise.all(
+    rows.map(async (ord) => {
+      const [shipment] = await db.select().from(shipments).where(eq(shipments.orderId, ord.id)).limit(1)
+      const [address] = await db.select().from(addresses).where(eq(addresses.id, ord.addressId)).limit(1)
+      return {
+        ...ord,
+        shipment: shipment ?? null,
+        address: address ?? null,
+      }
+    })
+  )
+
+  return c.json({ orders: results })
+})
+
+// ADMIN API: Fetch or download NimbusPost shipping label
+app.get('/admin/:id/label', requireAuth, requireRole('admin'), async (c) => {
+  const orderId = c.req.param('id')
+  const db = createDb(c.env.DATABASE_URL)
+
+  const [shipment] = await db.select().from(shipments).where(eq(shipments.orderId, orderId)).limit(1)
+  if (!shipment || !shipment.awbNumber) {
+    return c.json({ error: 'No shipment or AWB booked for this order yet' }, 404)
+  }
+
+  let labelUrl = shipment.labelUrl
+  if (!labelUrl) {
+    labelUrl = await getNimbuspostShippingLabel({
+      email: c.env.NIMBUSPOST_EMAIL,
+      password: c.env.NIMBUSPOST_PASSWORD,
+      awb: shipment.awbNumber,
+    })
+    if (labelUrl) {
+      await db.update(shipments).set({ labelUrl }).where(eq(shipments.id, shipment.id))
+    }
+  }
+
+  return c.json({
+    orderId,
+    awbNumber: shipment.awbNumber,
+    courierName: shipment.courierName,
+    labelUrl: labelUrl ?? `https://api.nimbuspost.com/v1/shipments/label?awb=${encodeURIComponent(shipment.awbNumber)}`,
+  })
+})
+
+// ADMIN API: Dispatch order to NimbusPost manually
+app.post('/admin/:id/send-to-nimbuspost', requireAuth, requireRole('admin'), async (c) => {
+  const orderId = c.req.param('id')
+  const db = createDb(c.env.DATABASE_URL)
+
+  const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1)
+  if (!order) return c.json({ error: 'Order not found' }, 404)
+
+  const [existingShipment] = await db.select().from(shipments).where(eq(shipments.orderId, orderId)).limit(1)
+  if (existingShipment && existingShipment.awbNumber) {
+    return c.json({ error: 'Order has already been sent to NimbusPost', shipment: existingShipment })
+  }
+
+  const [address] = await db.select().from(addresses).where(eq(addresses.id, order.addressId)).limit(1)
+  if (!address) return c.json({ error: 'Delivery address for order not found' }, 400)
+
+  const items = await db.select().from(orderItems).where(eq(orderItems.orderId, orderId))
+
+  try {
+    const receiverName = address.receiverName || 'Valued Customer'
+    const receiverPhone = address.receiverPhone || '9999999999'
+
+    const shipmentData = await createNimbuspostShipment({
+      email: c.env.NIMBUSPOST_EMAIL,
+      password: c.env.NIMBUSPOST_PASSWORD,
+      orderNumber: order.orderNumber,
+      origin: STORE_ORIGIN,
+      destination: {
+        name: receiverName,
+        phone: receiverPhone,
+        address: `${address.line1}${address.line2 ? ', ' + address.line2 : ''}`,
+        city: address.city,
+        state: address.state,
+        pincode: address.pincode,
+      },
+      items: items.map((i) => ({ name: i.productName, qty: i.quantity, price: Number(i.unitPrice) })),
+      codAmount: 0,
+      paymentType: 'prepaid',
+    })
+
+    let labelUrl: string | null = null
+    if (shipmentData.data.awb_number) {
+      labelUrl = await getNimbuspostShippingLabel({
+        email: c.env.NIMBUSPOST_EMAIL,
+        password: c.env.NIMBUSPOST_PASSWORD,
+        awb: shipmentData.data.awb_number,
+      })
+    }
+
+    let createdShipment
+    if (existingShipment) {
+      ;[createdShipment] = await db
+        .update(shipments)
+        .set({
+          nimbuspostShipmentId: shipmentData.data.shipment_id,
+          awbNumber: shipmentData.data.awb_number,
+          courierName: shipmentData.data.courier_name,
+          status: 'booked',
+          labelUrl,
+          updatedAt: new Date(),
+        })
+        .where(eq(shipments.id, existingShipment.id))
+        .returning()
+    } else {
+      ;[createdShipment] = await db
+        .insert(shipments)
+        .values({
+          orderId,
+          nimbuspostShipmentId: shipmentData.data.shipment_id,
+          awbNumber: shipmentData.data.awb_number,
+          courierName: shipmentData.data.courier_name,
+          status: 'booked',
+          labelUrl,
+        })
+        .returning()
+    }
+
+    await db
+      .update(orders)
+      .set({ status: 'shipped', updatedAt: new Date() })
+      .where(eq(orders.id, orderId))
+
+    return c.json({ success: true, shipment: createdShipment, awbNumber: shipmentData.data.awb_number })
+  } catch (err) {
+    console.error('NimbusPost shipment creation failed:', err)
+    return c.json({ error: err instanceof Error ? err.message : 'Failed to create NimbusPost shipment' }, 500)
+  }
 })
 
 const statusSchema = z.object({

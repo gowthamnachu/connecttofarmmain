@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { eq } from 'drizzle-orm'
+import { eq, or } from 'drizzle-orm'
 import { createDb } from '../db/client'
 import { users } from '../db/schema'
 import { validateBody } from '../middleware/validate'
@@ -11,10 +11,30 @@ import type { AppEnv } from '../types/bindings'
 
 const app = new Hono<AppEnv>()
 
-// Customer sign-up/login both go through this endpoint: the client verifies the phone
-// number via Firebase OTP and forwards the resulting ID token here for server-side
-// verification. `name` is required only the first time (sign-up); existing users log in
-// with phone alone.
+const checkPhoneSchema = z.object({
+  phone: z.string().trim().min(10),
+})
+
+// Check if user already exists by phone number (so existing users skip name entry)
+app.post('/check-phone', validateBody(checkPhoneSchema), async (c) => {
+  const { phone } = c.get('validatedBody' as never) as z.infer<typeof checkPhoneSchema>
+  const db = createDb(c.env.DATABASE_URL)
+
+  const cleanPhone = phone.replace(/[\s()-]/g, '')
+  const phoneE164 = cleanPhone.startsWith('+') ? cleanPhone : `+91${cleanPhone.replace(/^0+/, '')}`
+
+  const [existing] = await db
+    .select()
+    .from(users)
+    .where(or(eq(users.phone, phoneE164), eq(users.phone, cleanPhone)))
+    .limit(1)
+
+  return c.json({
+    exists: Boolean(existing),
+    name: existing?.name ?? null,
+  })
+})
+
 const verifySchema = z.object({
   idToken: z.string().min(10),
   name: z.string().trim().min(2).max(100).optional(),
@@ -39,7 +59,11 @@ app.post(
       return c.json({ error: 'Phone number missing from token' }, 400)
     }
 
-    const [existing] = await db.select().from(users).where(eq(users.firebaseUid, claims.uid)).limit(1)
+    const [existing] = await db
+      .select()
+      .from(users)
+      .where(or(eq(users.firebaseUid, claims.uid), eq(users.phone, claims.phone_number)))
+      .limit(1)
 
     let user = existing
     if (!user) {
@@ -51,6 +75,9 @@ app.post(
         .values({ name, phone: claims.phone_number, firebaseUid: claims.uid })
         .returning()
       user = created
+    } else if (!user.firebaseUid || user.firebaseUid !== claims.uid) {
+      // Link firebaseUid if phone matched an existing record
+      await db.update(users).set({ firebaseUid: claims.uid }).where(eq(users.id, user.id))
     }
 
     if (!user.isActive) {

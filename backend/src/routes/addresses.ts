@@ -21,6 +21,8 @@ app.get('/', async (c) => {
 
 const addressSchema = z.object({
   label: z.string().trim().max(40).default('Home'),
+  receiverName: z.string().trim().max(100).optional(),
+  receiverPhone: z.string().trim().max(20).optional(),
   line1: z.string().trim().min(3).max(200),
   line2: z.string().trim().max(200).optional(),
   city: z.string().trim().min(2).max(100),
@@ -41,6 +43,8 @@ app.post('/', validateBody(addressSchema), async (c) => {
     .values({
       userId: auth.id,
       label: data.label,
+      receiverName: data.receiverName,
+      receiverPhone: data.receiverPhone,
       line1: data.line1,
       line2: data.line2,
       city: data.city,
@@ -52,6 +56,32 @@ app.post('/', validateBody(addressSchema), async (c) => {
     })
     .returning()
   return c.json({ address: created }, 201)
+})
+
+app.put('/:id', validateBody(addressSchema.partial()), async (c) => {
+  const auth = c.get('auth')
+  const id = c.req.param('id')
+  const data = c.get('validatedBody' as never) as Partial<z.infer<typeof addressSchema>>
+  const db = createDb(c.env.DATABASE_URL)
+
+  const [updated] = await db
+    .update(addresses)
+    .set({
+      ...(data.label ? { label: data.label } : {}),
+      ...(data.receiverName !== undefined ? { receiverName: data.receiverName } : {}),
+      ...(data.receiverPhone !== undefined ? { receiverPhone: data.receiverPhone } : {}),
+      ...(data.line1 ? { line1: data.line1 } : {}),
+      ...(data.line2 !== undefined ? { line2: data.line2 } : {}),
+      ...(data.city ? { city: data.city } : {}),
+      ...(data.state ? { state: data.state } : {}),
+      ...(data.pincode ? { pincode: data.pincode } : {}),
+      ...(data.isDefault !== undefined ? { isDefault: data.isDefault } : {}),
+    })
+    .where(and(eq(addresses.id, id), eq(addresses.userId, auth.id)))
+    .returning()
+
+  if (!updated) return c.json({ error: 'Address not found' }, 404)
+  return c.json({ address: updated })
 })
 
 app.delete('/:id', async (c) => {

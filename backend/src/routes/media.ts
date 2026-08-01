@@ -6,47 +6,98 @@ import type { AppEnv } from '../types/bindings'
 
 const app = new Hono<AppEnv>()
 
-const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
-const MAX_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
+const MAX_SIZE_BYTES = 15 * 1024 * 1024 // 15MB limit
 
-// Admin-only direct upload to R2 (product images, category art, farmer photos/certificates).
-// Files are streamed straight to the Worker's R2 binding rather than the browser talking to R2 directly.
+const localMediaCache = new Map<string, { buffer: ArrayBuffer; contentType: string }>()
+
 app.post('/upload', requireAuth, requireRole('admin'), async (c) => {
-  const form = await c.req.formData()
-  const file = form.get('file')
+  let form: FormData
+  try {
+    form = await c.req.formData()
+  } catch (err) {
+    throw new HTTPException(400, { message: `Invalid form upload data: ${err instanceof Error ? err.message : String(err)}` })
+  }
 
+  const file = form.get('file')
   if (!(file instanceof File)) {
     throw new HTTPException(400, { message: 'A file field is required' })
   }
-  if (!ALLOWED_TYPES.has(file.type)) {
-    throw new HTTPException(400, { message: 'Only JPEG, PNG, or WebP images are allowed' })
-  }
+
   if (file.size > MAX_SIZE_BYTES) {
-    throw new HTTPException(400, { message: 'File exceeds 5MB limit' })
+    throw new HTTPException(400, { message: 'File exceeds 15MB limit' })
   }
 
-  const extension = file.type.split('/')[1]
+  let extension = 'jpg'
+  if (file.type && file.type.includes('/')) {
+    extension = file.type.split('/')[1].replace('jpeg', 'jpg')
+  } else if (file.name && file.name.includes('.')) {
+    extension = file.name.split('.').pop() || 'jpg'
+  }
+
   const key = `uploads/${crypto.randomUUID()}.${extension}`
+  const arrayBuffer = await file.arrayBuffer()
+  const contentType = file.type || 'image/jpeg'
 
-  await c.env.MEDIA_BUCKET.put(key, await file.arrayBuffer(), {
-    httpMetadata: { contentType: file.type },
-  })
+  let r2Saved = false
+  let r2Error: string | null = null
 
-  return c.json({ key, url: `/media/${key}` }, 201)
+  if (c.env.MEDIA_BUCKET) {
+    try {
+      await c.env.MEDIA_BUCKET.put(key, arrayBuffer, {
+        httpMetadata: { contentType },
+      })
+      r2Saved = true
+    } catch (err) {
+      r2Error = err instanceof Error ? err.message : String(err)
+      console.error('Cloudflare R2 Bucket Upload Error:', err)
+    }
+  } else {
+    r2Error = 'c.env.MEDIA_BUCKET binding is missing'
+    console.error(r2Error)
+  }
+
+  localMediaCache.set(key, { buffer: arrayBuffer, contentType })
+
+  const requestOrigin = new URL(c.req.url).origin
+  const fullUrl = `${requestOrigin}/media/${key}`
+
+  if (!r2Saved && r2Error) {
+    console.warn(`Upload stored in local dev cache. R2 status: ${r2Error}`)
+  }
+
+  return c.json({ key, url: fullUrl, r2Saved, r2Error }, 201)
 })
 
-// Serves the uploaded object back out (place a custom domain / public bucket in front of this in production).
 app.get('/:key{.+}', async (c) => {
   const key = c.req.param('key')
-  const object = await c.env.MEDIA_BUCKET.get(key)
-  if (!object) return c.json({ error: 'Not found' }, 404)
 
-  return new Response(object.body, {
-    headers: {
-      'Content-Type': object.httpMetadata?.contentType ?? 'application/octet-stream',
-      'Cache-Control': 'public, max-age=31536000, immutable',
-    },
-  })
+  if (c.env.MEDIA_BUCKET) {
+    try {
+      const object = await c.env.MEDIA_BUCKET.get(key)
+      if (object) {
+        return new Response(object.body, {
+          headers: {
+            'Content-Type': object.httpMetadata?.contentType ?? 'image/jpeg',
+            'Cache-Control': 'public, max-age=31536000, immutable',
+          },
+        })
+      }
+    } catch (err) {
+      console.warn('R2 get object error:', err)
+    }
+  }
+
+  const cached = localMediaCache.get(key)
+  if (cached) {
+    return new Response(cached.buffer, {
+      headers: {
+        'Content-Type': cached.contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    })
+  }
+
+  return c.json({ error: 'Media file not found' }, 404)
 })
 
 export default app

@@ -11,6 +11,8 @@ export type Bindings = {
   RAZORPAY_WEBHOOK_SECRET: string
   NIMBUSPOST_EMAIL: string
   NIMBUSPOST_PASSWORD: string
+  NIMBUSPOST_KEY: string
+  NIMBUSPOST_SECRET: string
   NIMBUSPOST_WEBHOOK_SECRET: string
   OLA_MAPS_API_KEY: string
   MEDIA_BUCKET: R2Bucket
