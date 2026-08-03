@@ -11,7 +11,7 @@ import {
   type Farmer,
   type Product,
 } from '../lib/api'
-import { IconPlus, IconRefresh, IconSearch } from './Icons'
+import { IconRefresh, IconSearch } from './Icons'
 import { useDebounce } from '../lib/useDebounce'
 
 export default function ProductsTab() {
@@ -45,7 +45,6 @@ export default function ProductsTab() {
   const [harvestDate, setHarvestDate] = useState('December 2025')
   const [gradeTag, setGradeTag] = useState('Grade A Unpolished')
   const [processTag, setProcessTag] = useState('Single De-husked & Hand Sorted')
-  const [isCertifiedNoPesticides, setIsCertifiedNoPesticides] = useState(true)
 
   // Quick Edit Buffers
   const [stockEdits, setStockEdits] = useState<Record<string, number>>({})
@@ -107,7 +106,7 @@ export default function ProductsTab() {
         harvestDate: harvestDate.trim() || 'December 2025',
         gradeTag: gradeTag.trim() || 'Grade A Unpolished',
         processTag: processTag.trim() || 'Single De-husked',
-        isCertifiedNoPesticides,
+        isCertifiedNoPesticides: true,
       })
       setName('')
       setPrice('')

@@ -7,7 +7,7 @@ import {
   uploadImage,
   type Farmer,
 } from '../lib/api'
-import { IconCheck, IconSearch, IconRefresh, IconPlus } from './Icons'
+import { IconCheck, IconSearch, IconRefresh } from './Icons'
 import { useDebounce } from '../lib/useDebounce'
 
 export default function FarmersTab() {
@@ -27,7 +27,7 @@ export default function FarmersTab() {
   // Filters & Search
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 250)
-  const [statusFilter, setStatusFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'certified' | 'pending' | 'rejected'>('all')
 
   // Form State
   const [name, setName] = useState('')
@@ -47,8 +47,6 @@ export default function FarmersTab() {
 
   // Edit Mode
   const [editingFarmerId, setEditingFarmerId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'certified' | 'pending' | 'rejected'>('all')
 
   function load() {
     setLoading(true)
@@ -147,7 +145,7 @@ export default function FarmersTab() {
         district: district.trim() || undefined,
         state: state.trim() || undefined,
         pincode: pincode.trim() || undefined,
-        landAreaAcres: landAreaAcres.trim() || undefined,
+        landAreaAcres: landAreaAcres.trim() ? Number(landAreaAcres) : undefined,
         experienceYears: experienceYears ? Number(experienceYears) : undefined,
         certifiedByConnectToFarm,
       }
@@ -159,7 +157,7 @@ export default function FarmersTab() {
         load()
       } else {
         const res = await onboardFarmer(payload)
-        setCreatedTempPassword({ name: res.farmer.name, pass: res.temporaryPassword })
+        setCreatedTempPassword({ name: res.farmer.name, pass: res.tempPassword })
         setNotice(`Farmer "${res.farmer.name}" onboarded successfully! Temporary password generated.`)
         resetForm()
         load()

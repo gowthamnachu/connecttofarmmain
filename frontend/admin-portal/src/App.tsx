@@ -61,18 +61,18 @@ function App() {
 
   if (session) {
     return (
-      <div className="flex h-screen w-full bg-white text-[#111827] overflow-hidden font-sans">
+      <div className="flex h-screen w-full bg-slate-50 text-[#111827] overflow-hidden font-sans">
         {/* Left Enterprise Navigation Sidebar */}
-        <aside className="w-64 bg-[#6A7B67] text-white flex flex-col justify-between border-r border-[#566356] flex-shrink-0">
+        <aside className="w-64 glass-erp-sidebar text-white flex flex-col justify-between flex-shrink-0">
           <div>
             {/* Enterprise Brand Header */}
-            <div className="p-5 border-b border-white/15 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ECE5D1] text-[#6A7B67] shadow-sm font-black text-base">
+            <div className="p-5 border-b border-white/10 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#C29845] text-[#103318] shadow-md font-black text-base">
                 🌱
               </div>
               <div>
-                <h1 className="text-sm font-extrabold tracking-tight text-white uppercase">Connect to Farm</h1>
-                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#ECE5D1]">
+                <h1 className="font-display text-sm font-extrabold tracking-tight text-white uppercase">Connect to Farm</h1>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-200">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Enterprise ERP v2.4
                 </span>
@@ -80,16 +80,16 @@ function App() {
             </div>
 
             {/* Hub Dispatch Info */}
-            <div className="mx-3 mt-4 rounded-2xl bg-black/15 p-3.5 border border-white/15 text-xs text-white/90 space-y-1">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-[#ECE5D1]">
+            <div className="mx-3 mt-4 rounded-2xl bg-black/20 p-3.5 border border-white/10 text-xs text-white/90 space-y-1">
+              <div className="flex items-center justify-between text-[11px] font-semibold text-emerald-200">
                 <span>Dispatch Center</span>
-                <span className="text-emerald-300 font-extrabold">Active</span>
+                <span className="text-emerald-400 font-extrabold">Active</span>
               </div>
-              <p className="font-bold text-white text-xs flex items-center gap-1.5">
-                <IconBuilding className="w-3.5 h-3.5 text-[#ECE5D1]" />
+              <p className="font-display font-bold text-white text-xs flex items-center gap-1.5">
+                <IconBuilding className="w-3.5 h-3.5 text-amber-300" />
                 <span>LB Nagar Warehouse</span>
               </p>
-              <p className="text-[11px] text-[#ECE5D1]/80 font-medium">Pincode 500074 · Hyderabad</p>
+              <p className="text-[11px] text-emerald-100/80 font-medium">Pincode 500074 · Hyderabad</p>
             </div>
 
             {/* Navigation Tabs */}
@@ -101,13 +101,13 @@ function App() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-display text-xs font-semibold transition-all ${
                       isActive
-                        ? 'bg-[#566356] text-white font-extrabold shadow-sm border-l-4 border-[#ECE5D1]'
-                        : 'text-white/85 hover:bg-white/10 hover:text-white'
+                        ? 'bg-white/15 text-white font-bold shadow-sm border-l-4 border-[#C29845]'
+                        : 'text-emerald-100/80 hover:bg-white/10 hover:text-white'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#ECE5D1]' : 'text-white/70'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#C29845]' : 'text-emerald-200/70'}`} />
                     <span>{tab.label}</span>
                   </button>
                 )
@@ -116,15 +116,15 @@ function App() {
           </div>
 
           {/* Admin User Profile Bottom Footer */}
-          <div className="p-4 border-t border-white/15 bg-black/20">
+          <div className="p-4 border-t border-white/10 bg-black/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#ECE5D1] text-[#6A7B67] font-black text-xs">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C29845] text-[#103318] font-black text-xs">
                   {session.admin.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white">{session.admin.name}</p>
-                  <p className="text-[11px] text-[#ECE5D1] font-medium capitalize">{session.admin.role} Manager</p>
+                  <p className="font-display text-xs font-bold text-white">{session.admin.name}</p>
+                  <p className="text-[11px] text-emerald-200 font-medium capitalize">{session.admin.role} Manager</p>
                 </div>
               </div>
               <button
@@ -142,15 +142,15 @@ function App() {
         </aside>
 
         {/* Right Main Content Area */}
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
           {/* Top ERP Executive Header Bar */}
-          <header className="bg-white border-b border-gray-200 px-6 py-3.5 flex items-center justify-between flex-shrink-0 shadow-sm">
+          <header className="glass-erp-header px-6 py-3.5 flex items-center justify-between flex-shrink-0">
             <div>
-              <h2 className="text-base font-black text-[#164220] tracking-tight">
+              <h2 className="font-display text-base font-extrabold text-[#164220] tracking-tight">
                 {TABS.find((t) => t.id === activeTab)?.label}
               </h2>
-              <p className="text-[11px] font-medium text-gray-500">
-                Connect to Farm Quick Commerce & Logistics Management
+              <p className="text-[11px] font-medium text-slate-500">
+                Connect to Farm Enterprise AgTech & Supply Chain ERP
               </p>
             </div>
 

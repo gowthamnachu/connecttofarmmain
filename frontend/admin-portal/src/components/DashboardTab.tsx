@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAdminOrders, getAdminProducts, getFarmers, type Order, type Product } from '../lib/api'
+import { getAdminOrders, getAdminProducts, getFarmers, downloadOfficialNimbuspostLabel, type Order, type Product } from '../lib/api'
 import { IconTrendingUp, IconTruck, IconPackage, IconFarmers, IconCheck, IconDownload } from './Icons'
 
 export default function DashboardTab() {
@@ -29,66 +29,67 @@ export default function DashboardTab() {
       {/* Executive KPI Header Cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Total Revenue */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500">Gross Sales Revenue</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+            <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-slate-500">Gross Sales Revenue</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100/80 text-[#164220]">
               <IconTrendingUp className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 className="text-2xl font-extrabold text-gray-900">
+            <h3 className="font-numeric text-2xl font-extrabold text-slate-900">
               ₹{totalRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
             </h3>
-            <p className="mt-1 text-[11px] font-bold text-emerald-700">
-              Razorpay Confirmed Payments
+            <p className="mt-1 text-[11px] font-semibold text-[#164220] flex items-center gap-1">
+              <IconCheck className="w-3 h-3 text-[#164220]" />
+              <span>Razorpay Confirmed Payments</span>
             </p>
           </div>
         </div>
 
         {/* Active Dispatch */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500">NimbusPost Dispatch</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100 text-blue-700">
+            <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-slate-500">NimbusPost Dispatch</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-100/80 text-blue-700">
               <IconTruck className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 className="text-2xl font-extrabold text-gray-900">{pendingShipments} Active</h3>
-            <p className="mt-1 text-[11px] font-bold text-blue-700">
+            <h3 className="font-numeric text-2xl font-extrabold text-slate-900">{pendingShipments} Active</h3>
+            <p className="mt-1 text-[11px] font-semibold text-blue-700">
               Live AWB Tracking Sync
             </p>
           </div>
         </div>
 
         {/* Catalog SKUs */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500">Catalog SKUs</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#184E28]/10 text-[#184E28]">
+            <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-slate-500">Catalog SKUs</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#164220]/10 text-[#164220]">
               <IconPackage className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 className="text-2xl font-extrabold text-gray-900">{products.length} SKUs</h3>
-            <p className="mt-1 text-[11px] font-bold text-amber-700">
+            <h3 className="font-numeric text-2xl font-extrabold text-slate-900">{products.length} SKUs</h3>
+            <p className="mt-1 text-[11px] font-semibold text-amber-700">
               {outOfStockProducts.length > 0 ? `⚠️ ${outOfStockProducts.length} Out of Stock` : 'Healthy Inventory'}
             </p>
           </div>
         </div>
 
         {/* Certified Farmers */}
-        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+        <div className="rounded-2xl border border-emerald-900/10 bg-white p-5 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-gray-500">Direct Growers</span>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-800">
+            <span className="text-[10px] font-display font-semibold uppercase tracking-wider text-slate-500">Direct Growers</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100/80 text-amber-800">
               <IconFarmers className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-3">
-            <h3 className="text-2xl font-extrabold text-gray-900">{farmerCount} Certified</h3>
-            <p className="mt-1 text-[11px] font-bold text-gray-500">Mandya & Guntur Network</p>
+            <h3 className="font-numeric text-2xl font-extrabold text-slate-900">{farmerCount} Certified</h3>
+            <p className="mt-1 text-[11px] font-semibold text-slate-500">Mandya & Guntur Network</p>
           </div>
         </div>
       </div>
@@ -141,16 +142,15 @@ export default function DashboardTab() {
                         </span>
                       </td>
                       <td className="px-3 py-2.5 text-right">
-                        {ord.shipment?.labelUrl ? (
-                          <a
-                            href={ord.shipment.labelUrl}
-                            target="_blank"
-                            rel="noreferrer"
+                        {ord.shipment?.awbNumber ? (
+                          <button
+                            type="button"
+                            onClick={() => downloadOfficialNimbuspostLabel(ord.id).catch(console.error)}
                             className="rounded-lg bg-[#184E28] hover:bg-[#123C1E] text-white px-2.5 py-1 text-[10px] font-bold shadow-sm inline-flex items-center gap-1"
                           >
                             <IconDownload className="w-3 h-3" />
                             <span>Label</span>
-                          </a>
+                          </button>
                         ) : (
                           <span className="text-[10px] text-gray-400">N/A</span>
                         )}

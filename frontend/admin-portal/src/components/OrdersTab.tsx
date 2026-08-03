@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAdminOrders, getOrderShippingLabel, sendOrderToNimbuspost, updateOrderStatus, type Order } from '../lib/api'
+import { getAdminOrders, downloadOfficialNimbuspostLabel, sendOrderToNimbuspost, updateOrderStatus, type Order } from '../lib/api'
 import { IconDownload, IconTruck, IconRefresh, IconSearch } from './Icons'
 import { useDebounce } from '../lib/useDebounce'
 
@@ -39,21 +39,12 @@ export default function OrdersTab() {
     }
   }
 
-  async function handleDownloadLabel(orderId: string, existingLabelUrl?: string | null) {
+  async function handleDownloadLabel(orderId: string) {
     setDownloadingLabelId(orderId)
     try {
-      let targetUrl = existingLabelUrl
-      if (!targetUrl) {
-        const res = await getOrderShippingLabel(orderId)
-        targetUrl = res.labelUrl
-      }
-      if (targetUrl) {
-        window.open(targetUrl, '_blank')
-      } else {
-        setError('Shipping label not generated yet')
-      }
+      await downloadOfficialNimbuspostLabel(orderId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not fetch shipping label')
+      setError(err instanceof Error ? err.message : 'Could not fetch shipping label from NimbusPost')
     } finally {
       setDownloadingLabelId(null)
     }
@@ -236,7 +227,7 @@ export default function OrdersTab() {
                     {ord.shipment?.awbNumber ? (
                       <button
                         type="button"
-                        onClick={() => handleDownloadLabel(ord.id, ord.shipment?.labelUrl)}
+                        onClick={() => handleDownloadLabel(ord.id)}
                         disabled={downloadingLabelId === ord.id}
                         className="rounded-lg bg-[#164220] hover:bg-[#123C1E] text-white px-3 py-1.5 text-xs font-bold shadow-sm transition disabled:opacity-50 inline-flex items-center gap-1.5"
                       >

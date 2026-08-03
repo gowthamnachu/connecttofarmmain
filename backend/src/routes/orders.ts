@@ -7,7 +7,7 @@ import { requireAuth } from '../middleware/auth'
 import { requireRole } from '../middleware/rbac'
 import { validateBody } from '../middleware/validate'
 import { createRazorpayOrder, verifyRazorpayPaymentSignature } from '../lib/razorpay'
-import { createNimbuspostShipment, getNimbuspostShippingLabel } from '../lib/nimbuspost'
+import { createNimbuspostShipment, fetchNimbuspostOfficialLabel, getNimbuspostShippingLabel } from '../lib/nimbuspost'
 import { STORE_ORIGIN, FREE_DELIVERY_THRESHOLD, FLAT_DELIVERY_FEE } from '../config/store'
 import type { AppEnv } from '../types/bindings'
 
@@ -192,7 +192,7 @@ app.get('/admin/all', requireAuth, requireRole('admin'), async (c) => {
   return c.json({ orders: results })
 })
 
-// ADMIN API: Fetch or download NimbusPost shipping label
+// ADMIN API: Fetch or download NimbusPost shipping label directly from NimbusPost
 app.get('/admin/:id/label', requireAuth, requireRole('admin'), async (c) => {
   const orderId = c.req.param('id')
   const db = createDb(c.env.DATABASE_URL)
@@ -202,24 +202,29 @@ app.get('/admin/:id/label', requireAuth, requireRole('admin'), async (c) => {
     return c.json({ error: 'No shipment or AWB booked for this order yet' }, 404)
   }
 
-  let labelUrl = shipment.labelUrl
-  if (!labelUrl) {
-    labelUrl = await getNimbuspostShippingLabel({
+  try {
+    const result = await fetchNimbuspostOfficialLabel({
       email: c.env.NIMBUSPOST_EMAIL,
       password: c.env.NIMBUSPOST_PASSWORD,
       awb: shipment.awbNumber,
     })
-    if (labelUrl) {
-      await db.update(shipments).set({ labelUrl }).where(eq(shipments.id, shipment.id))
-    }
-  }
 
-  return c.json({
-    orderId,
-    awbNumber: shipment.awbNumber,
-    courierName: shipment.courierName,
-    labelUrl: labelUrl ?? `https://api.nimbuspost.com/v1/shipments/label?awb=${encodeURIComponent(shipment.awbNumber)}`,
-  })
+    if (result.redirectUrl) {
+      return c.json({ labelUrl: result.redirectUrl, awbNumber: shipment.awbNumber })
+    }
+
+    if (typeof result.data === 'string') {
+      return c.html(result.data)
+    }
+
+    return c.body(result.data, 200, {
+      'Content-Type': result.contentType || 'application/pdf',
+      'Content-Disposition': `inline; filename="nimbuspost-label-${shipment.awbNumber}.pdf"`,
+    })
+  } catch (err) {
+    console.error('Failed to fetch NimbusPost official label:', err)
+    return c.json({ error: err instanceof Error ? err.message : 'Could not fetch NimbusPost label' }, 500)
+  }
 })
 
 // ADMIN API: Dispatch order to NimbusPost manually

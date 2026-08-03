@@ -6,7 +6,14 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:customer": "npm --prefix frontend/customer-app run dev",
     "dev:farmer": "npm --prefix frontend/farmer-portal run dev",
-    "dev:admin": "npm --prefix frontend/admin-portal run dev"
+    "dev:admin": "npm --prefix frontend/admin-portal run dev",
+    "build:customer": "npm --prefix frontend/customer-app run build",
+    "build:farmer": "npm --prefix frontend/farmer-portal run build",
+    "build:admin": "npm --prefix frontend/admin-portal run build",
+    "build:all": "npm run build:customer && npm run build:farmer && npm run build:admin",
+    "deploy:customer": "wrangler pages deploy frontend/customer-app/dist --project-name=connecttofarm-customer",
+    "deploy:farmer": "wrangler pages deploy frontend/farmer-portal/dist --project-name=connecttofarm-farmer",
+    "deploy:admin": "wrangler pages deploy frontend/admin-portal/dist --project-name=connecttofarm-admin"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

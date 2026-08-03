@@ -43,7 +43,6 @@ import {
   IconUser,
   IconCart,
   IconLocation,
-  IconLightning,
   IconShield,
   IconTag,
   IconTruck,
@@ -51,10 +50,8 @@ import {
   IconSparkles,
   IconCheck,
   IconArrowRight,
-  IconChevronDown,
   IconCross,
   IconHeart,
-  IconShoppingBag,
   IconMenu,
 } from './components/Icons'
 
@@ -196,25 +193,26 @@ function ProductTile({
   busy: boolean
 }) {
   const imageUrl = product.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
+  const coopPrice = (Number(product.price) * 0.9).toFixed(2)
+  const [selectedWeight, setSelectedWeight] = useState(product.unit || '100g')
 
   return (
-    <article className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white p-3.5 shadow-sm hover:border-gray-300 hover:shadow-lg transition-all duration-300">
-      {/* White Product Image Box */}
+    <article className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#164220]/40 hover:shadow-md transition-all duration-300">
+      {/* Product Image Box */}
       <div
         onClick={() => onClickProduct?.(product)}
-        className="relative h-48 w-full bg-white rounded-xl border border-gray-100 p-2 flex items-center justify-center overflow-hidden mb-3 cursor-pointer"
+        className="relative h-44 w-full bg-[#f4f5f6] rounded-xl p-3 flex items-center justify-center overflow-hidden mb-3 cursor-pointer group-hover:bg-[#ebedee] transition"
       >
+        {/* Top Left Discount Tag */}
+        <div className="absolute top-2 left-2 rounded-md bg-[#e53935] px-2 py-0.5 text-[11px] font-extrabold text-white shadow-xs z-10">
+          -10%
+        </div>
+
         <img
           src={imageUrl}
           alt={product.name}
-          className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-500"
+          className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300 ease-out"
         />
-
-        {/* Top Left Farmer Pill */}
-        <div className="absolute top-2 left-2 rounded-full bg-white/95 backdrop-blur px-2.5 py-0.5 text-[10px] font-semibold text-gray-800 shadow-sm border border-gray-200 flex items-center gap-1">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#164220]" />
-          <span>{product.farmerName || 'Direct Farm'}</span>
-        </div>
 
         {/* Top Right Wishlist Button */}
         <button
@@ -223,8 +221,8 @@ function ProductTile({
             onToggleWishlist(product)
           }}
           aria-label="Add to wishlist"
-          className={`absolute top-2 right-2 h-7 w-7 rounded-full bg-white/95 backdrop-blur border flex items-center justify-center shadow-sm transition ${
-            isWishlisted ? 'text-[#164220] bg-[#ECE5D1] border-[#6A7B67]/50 shadow-sm' : 'text-gray-600 border-gray-200 hover:text-[#164220]'
+          className={`absolute top-2 right-2 h-7 w-7 rounded-full bg-white/90 backdrop-blur-md border flex items-center justify-center shadow-xs transition z-10 ${
+            isWishlisted ? 'text-[#164220] bg-emerald-50 border-[#164220]' : 'text-slate-400 border-slate-200 hover:text-[#164220]'
           }`}
         >
           <IconHeart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current text-[#164220]' : ''}`} />
@@ -237,55 +235,70 @@ function ProductTile({
           {/* Title */}
           <h3
             onClick={() => onClickProduct?.(product)}
-            className="text-xs font-bold text-gray-900 line-clamp-2 leading-snug tracking-tight hover:text-[#164220] transition min-h-[32px] cursor-pointer"
+            className="font-display text-xs md:text-sm font-semibold text-slate-800 line-clamp-2 leading-snug hover:text-[#164220] transition min-h-[36px] cursor-pointer"
           >
             {product.name}
           </h3>
 
-          {/* Star Rating & Reviews */}
-          <div className="mt-1 flex items-center gap-1 text-[11px]">
-            <span className="text-amber-400">⭐⭐⭐⭐⭐</span>
-            <span className="text-gray-500 font-medium">(29 Reviews)</span>
+          {/* Main Price */}
+          <div className="mt-2 flex items-baseline gap-1 font-numeric">
+            <span className="text-sm font-bold text-slate-900">₹</span>
+            <span className="text-lg font-extrabold text-slate-950">{product.price}.00</span>
           </div>
 
-          {/* Price */}
-          <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-xs font-bold text-gray-700">Rs.</span>
-            <span className="text-sm font-extrabold text-gray-900">{product.price}.00</span>
-            <span className="text-[10px] text-gray-400">/ {product.unit}</span>
+          {/* Co-Op Member Price Badge Pill */}
+          <div className="mt-1.5 rounded-lg bg-[#e6f4ea] border border-[#cbe5d4] px-2.5 py-1 text-[11px] font-semibold text-[#164220] flex items-center gap-1.5">
+            <span className="text-xs">🍃</span>
+            <span>₹ {coopPrice} for Co-Op Members</span>
           </div>
         </div>
 
-        {/* Millet Amma Dark Green Add to Cart Button */}
-        {quantityInCart > 0 ? (
-          <div className="flex items-center justify-between rounded-full bg-[#164220] px-2 py-1 text-white shadow-sm">
-            <button
-              onClick={() => onUpdateQty(product.id, quantityInCart - 1)}
-              disabled={busy}
-              aria-label="Decrease quantity"
-              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#103318] text-sm font-bold transition disabled:opacity-50"
+        {/* Weight Selector Dropdown & Add Button Row */}
+        <div className="mt-3 flex items-center gap-2 pt-1">
+          <div className="relative">
+            <select
+              value={selectedWeight}
+              onChange={(e) => setSelectedWeight(e.target.value)}
+              className="appearance-none rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 pr-6 text-xs font-semibold text-slate-700 outline-none hover:border-slate-400 cursor-pointer"
             >
-              -
-            </button>
-            <span className="w-8 text-center text-xs font-extrabold">{busy ? '...' : quantityInCart}</span>
-            <button
-              onClick={() => onUpdateQty(product.id, quantityInCart + 1)}
-              disabled={busy || quantityInCart >= product.stock}
-              aria-label="Increase quantity"
-              className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#103318] text-sm font-bold transition disabled:opacity-50"
-            >
-              +
-            </button>
+              <option value={product.unit || '100g'}>{product.unit || '100g'}</option>
+              <option value="200g">200g</option>
+              <option value="500g">500g</option>
+            </select>
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">▼</span>
           </div>
-        ) : (
-          <button
-            onClick={() => onAdd(product)}
-            disabled={product.stock < 1 || busy}
-            className="w-full rounded-full bg-[#164220] hover:bg-[#103318] text-white py-2.5 px-4 font-bold text-xs shadow-sm transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
-          >
-            <span>{product.stock < 1 ? 'Out of Stock' : busy ? 'Adding...' : 'Add to Cart'}</span>
-          </button>
-        )}
+
+          {/* Add / Stepper Button */}
+          {quantityInCart > 0 ? (
+            <div className="flex-1 flex items-center justify-between rounded-lg bg-[#164220] px-2 py-1 text-white shadow-xs">
+              <button
+                onClick={() => onUpdateQty(product.id, quantityInCart - 1)}
+                disabled={busy}
+                aria-label="Decrease quantity"
+                className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#103318] text-xs font-extrabold transition disabled:opacity-50"
+              >
+                -
+              </button>
+              <span className="text-xs font-numeric font-bold">{busy ? '...' : quantityInCart}</span>
+              <button
+                onClick={() => onUpdateQty(product.id, quantityInCart + 1)}
+                disabled={busy || quantityInCart >= product.stock}
+                aria-label="Increase quantity"
+                className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#103318] text-xs font-extrabold transition disabled:opacity-50"
+              >
+                +
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => onAdd(product)}
+              disabled={product.stock < 1 || busy}
+              className="flex-1 rounded-lg bg-[#164220] hover:bg-[#103318] text-white py-1.5 px-3 font-display font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center disabled:opacity-50"
+            >
+              <span>{product.stock < 1 ? 'Out' : busy ? '...' : 'Add'}</span>
+            </button>
+          )}
+        </div>
       </div>
     </article>
   )
@@ -324,9 +337,11 @@ function App() {
         try {
           const res = await reverseGeocode(pos.coords.latitude, pos.coords.longitude)
           if (res.address) {
-            setLocationLabel(res.formattedAddress || `${res.address.area || 'Hyderabad'}, ${res.address.pincode || '500081'}`)
-            if (res.address.pincode) setCurrentPincode(res.address.pincode)
-            setNotice(`Location updated: ${res.address.area || 'Hyderabad'} (${res.address.pincode || '500081'})`)
+            const pincodeMatch = res.address.match(/\b\d{6}\b/)
+            const extractedPin = pincodeMatch ? pincodeMatch[0] : null
+            setLocationLabel(res.address)
+            if (extractedPin) setCurrentPincode(extractedPin)
+            setNotice(`Location updated: ${res.address}`)
             setShowLocationModal(false)
           }
         } catch {
@@ -337,7 +352,7 @@ function App() {
           setLocatingInProgress(false)
         }
       },
-      (err) => {
+      () => {
         setLocatingInProgress(false)
         setNotice('Could not get GPS position. Please select location manually or enter pincode.')
       }
@@ -361,7 +376,7 @@ function App() {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 250)
-  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [_placeholderIndex, setPlaceholderIndex] = useState(0)
 
   const [farmers, setFarmers] = useState<PublicFarmer[]>([])
   const [farmersLoading, setFarmersLoading] = useState(true)
@@ -395,7 +410,7 @@ function App() {
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set())
   const [wishlistOpen, setWishlistOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [dbCategories, setDbCategories] = useState<Category[]>([])
+  const [_dbCategories, setDbCategories] = useState<Category[]>([])
 
   const [selectedProductSlug, setSelectedProductSlug] = useState<string | null>(null)
 
@@ -974,37 +989,50 @@ function App() {
   // Render Home Content
   function renderHome() {
     const activeBanner = BANNERS[bannerIndex]
+    const ALL_SIDEBAR_CATEGORIES = [
+      'Staples',
+      'Dairy',
+      'Fruits & Vegetables',
+      'Dals & Pulses',
+      'Millets',
+      'Oils',
+      'Snacks',
+      'Bakery',
+      'Dry Fruits',
+      'Beverages',
+      'Edibles',
+    ]
 
     return (
       <div className="space-y-6 pb-24">
         {/* Express Banner Carousel */}
-        <section className="relative overflow-hidden rounded-3xl border border-[#6A7B67]/30 shadow-xl transition-all duration-500">
-          <div className={`relative bg-gradient-to-r ${activeBanner.bg} p-6 sm:p-8 text-white min-h-[190px] flex flex-col justify-between`}>
+        <section className="relative overflow-hidden rounded-3xl border border-[#164220]/20 shadow-md transition-all duration-500">
+          <div className={`relative bg-gradient-to-r ${activeBanner.bg} p-6 sm:p-8 text-white min-h-[180px] flex flex-col justify-between`}>
             <div className="flex items-start justify-between gap-4">
               <div className="max-w-lg">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#ECE5D1]/20 px-3 py-1 text-xs font-bold text-[#ECE5D1] border border-[#ECE5D1]/40 backdrop-blur">
-                  <span className="h-2 w-2 rounded-full bg-[#ECE5D1] animate-pulse" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white backdrop-blur">
+                  <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
                   {activeBanner.tag}
                 </span>
-                <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl tracking-tight leading-tight text-[#ECE5D1]">
+                <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl tracking-tight leading-tight text-white">
                   {activeBanner.title}
                 </h1>
-                <p className="mt-1.5 text-xs sm:text-sm text-[#ECE5D1]/80 font-medium">
+                <p className="mt-1.5 text-xs sm:text-sm text-white/90 font-medium">
                   {activeBanner.subtitle}
                 </p>
               </div>
 
               {/* Express Badge */}
               <div className="hidden sm:flex flex-col items-end rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/15 text-right">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#ECE5D1]">Direct Farm</span>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-white">Direct Farm</span>
                 <span className="text-xl font-extrabold text-white mt-0.5">⚡ 15 MIN</span>
-                <span className="text-[10px] text-[#ECE5D1]/80 font-medium">Express Dispatch</span>
+                <span className="text-[10px] text-white/80 font-medium">Express Dispatch</span>
               </div>
             </div>
 
-            <div className="mt-6 flex items-center justify-between border-t border-white/15 pt-4">
-              <span className="text-xs font-bold text-[#ECE5D1] flex items-center gap-1.5">
-                <IconSparkles className="w-4 h-4 text-[#ECE5D1]" />
+            <div className="mt-4 flex items-center justify-between border-t border-white/15 pt-3">
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <IconSparkles className="w-4 h-4 text-white" />
                 <span>Free Express Delivery on orders above ₹500</span>
               </span>
 
@@ -1016,7 +1044,7 @@ function App() {
                     onClick={() => setBannerIndex(idx)}
                     aria-label={`Slide ${idx + 1}`}
                     className={`h-2 rounded-full transition-all ${
-                      idx === bannerIndex ? 'w-6 bg-[#ECE5D1]' : 'w-2 bg-white/30'
+                      idx === bannerIndex ? 'w-6 bg-white' : 'w-2 bg-white/40'
                     }`}
                   />
                 ))}
@@ -1035,12 +1063,12 @@ function App() {
           ].map((seal) => {
             const Icon = seal.icon
             return (
-              <div key={seal.title} className="flex items-center gap-3 rounded-2xl border border-[#6A7B67]/25 bg-white p-3 shadow-sm">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#6A7B67]/15 text-[#6A7B67]">
-                  <Icon className="w-5 h-5" />
+              <div key={seal.title} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-[#164220]">
+                  <Icon className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-extrabold text-[#2D382C]">{seal.title}</p>
+                  <p className="text-xs font-bold text-slate-800">{seal.title}</p>
                   <p className="text-[10px] font-medium text-slate-500">{seal.desc}</p>
                 </div>
               </div>
@@ -1048,101 +1076,90 @@ function App() {
           })}
         </section>
 
-        {/* Category Grid */}
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-extrabold text-[#2D382C] tracking-tight">Explore Organic Harvest</h2>
-              <p className="text-xs text-slate-600 font-medium">Sourced straight from local farmers</p>
-            </div>
-            <button
-              onClick={() => setActiveView('Search')}
-              className="text-xs font-bold text-[#6A7B67] hover:text-[#536250] transition flex items-center gap-1"
-            >
-              <span>All Categories</span>
-              <IconArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
-            {CATEGORIES.map((category) => (
-              <button
-                key={category.slug}
-                onClick={() => {
-                  setSelectedCategorySlug(category.slug)
-                }}
-                className={`group relative overflow-hidden rounded-2xl border p-3.5 text-left transition-all duration-300 ${
-                  selectedCategorySlug === category.slug
-                    ? 'border-[#6A7B67] bg-[#6A7B67] text-white shadow-glow-sage'
-                    : `border-[#6A7B67]/25 bg-gradient-to-br ${category.accent} text-[#2D382C] hover:border-[#6A7B67] hover:shadow-md`
-                }`}
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/80 text-[#6A7B67] mb-2 shadow-sm">
-                  <IconSprout className="w-5 h-5" />
-                </div>
-                <p className="text-xs font-extrabold tracking-tight">{category.name}</p>
-                <p
-                  className={`mt-1 text-[9px] font-extrabold uppercase tracking-wider ${
-                    selectedCategorySlug === category.slug ? 'text-[#ECE5D1]' : 'text-[#6A7B67]'
-                  }`}
+        {/* Main Content Layout with Desktop Category Sidebar */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Main Product Showcase Grid (Left / Main Column) */}
+          <div className="lg:col-span-9 space-y-4">
+            <div className="flex items-end justify-between gap-3 border-b border-slate-200 pb-2">
+              <div>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#164220]">Direct Farm Harvest</span>
+                <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                  {selectedCategorySlug ? `Category: ${selectedCategorySlug.toUpperCase()}` : 'All Organic Products'}
+                </h2>
+              </div>
+              {selectedCategorySlug && (
+                <button
+                  onClick={() => setSelectedCategorySlug('')}
+                  className="text-xs font-bold text-[#164220] hover:underline"
                 >
-                  {category.discount}
-                </p>
-              </button>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Products Showcase */}
-        <section className="space-y-3">
-          <div className="flex items-end justify-between gap-3 border-b border-[#6A7B67]/20 pb-2">
-            <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#6A7B67]">Direct Farm Harvest</span>
-              <h2 className="text-lg font-extrabold text-[#2D382C] tracking-tight">
-                {selectedCategorySlug ? `Category: ${selectedCategorySlug.toUpperCase()}` : 'All Organic Products'}
-              </h2>
+                  Show All Products ({allProducts.length})
+                </button>
+              )}
             </div>
-            {selectedCategorySlug && (
-              <button
-                onClick={() => setSelectedCategorySlug('')}
-                className="text-xs font-bold text-[#6A7B67] hover:underline"
-              >
-                Show All Products ({allProducts.length})
-              </button>
+
+            {catalogLoading ? (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {[0, 1, 2, 3].map((item) => (
+                  <div key={item} className="h-56 animate-pulse rounded-2xl bg-slate-100" />
+                ))}
+              </div>
+            ) : heroProducts.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm font-semibold text-slate-500">
+                No products found.
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                {heroProducts.map((product) => (
+                  <ProductTile
+                    key={product.id}
+                    product={product}
+                    quantityInCart={cartQuantityMap[product.id] ?? 0}
+                    isWishlisted={wishlistIds.has(product.id)}
+                    busy={cartBusyProductId === product.id}
+                    onAdd={(item) => void handleAddToCart(item)}
+                    onUpdateQty={(id, qty) => void changeCartQuantity(id, qty)}
+                    onToggleWishlist={(item) => void handleToggleWishlist(item)}
+                    onClickProduct={(item) => {
+                      setSelectedProductSlug(item.slug)
+                      window.location.hash = `/product/${item.slug}`
+                    }}
+                  />
+                ))}
+              </div>
             )}
           </div>
 
-          {catalogLoading ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {[0, 1, 2, 3].map((item) => (
-                <div key={item} className="h-56 animate-pulse rounded-2xl bg-white/60" />
-              ))}
+          {/* Category Sidebar (Right Column on Desktop - Image 1) */}
+          <aside className="hidden lg:block lg:col-span-3 space-y-3 sticky top-20">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <h3 className="font-display text-base font-extrabold text-slate-900 border-b-2 border-[#164220] pb-1 inline-block mb-3">
+                Category
+              </h3>
+              <div className="space-y-1.5">
+                {ALL_SIDEBAR_CATEGORIES.map((catName) => {
+                  const catSlug = catName.toLowerCase().replace(/[^a-z0-9]/g, '-')
+                  const isSelected = selectedCategorySlug.toLowerCase() === catSlug
+                  return (
+                    <button
+                      key={catName}
+                      onClick={() => {
+                        if (isSelected) setSelectedCategorySlug('')
+                        else setSelectedCategorySlug(catSlug)
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-semibold transition border ${
+                        isSelected
+                          ? 'border-[#164220] bg-[#eaf5ee] text-[#164220] font-bold shadow-xs'
+                          : 'border-slate-100 bg-white text-slate-700 hover:border-[#164220]/40 hover:bg-[#f4f7f5] hover:text-[#164220]'
+                      }`}
+                    >
+                      {catName}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
-          ) : heroProducts.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-[#6A7B67]/40 bg-white p-8 text-center text-sm font-semibold text-slate-500">
-              No products found.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-              {heroProducts.map((product) => (
-                <ProductTile
-                  key={product.id}
-                  product={product}
-                  quantityInCart={cartQuantityMap[product.id] ?? 0}
-                  isWishlisted={wishlistIds.has(product.id)}
-                  busy={cartBusyProductId === product.id}
-                  onAdd={(item) => void handleAddToCart(item)}
-                  onUpdateQty={(id, qty) => void changeCartQuantity(id, qty)}
-                  onToggleWishlist={(item) => void handleToggleWishlist(item)}
-                  onClickProduct={(item) => {
-                    setSelectedProductSlug(item.slug)
-                    window.location.hash = `/product/${item.slug}`
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+          </aside>
+        </div>
 
         {/* Farmers Section */}
         <section className="space-y-3 pt-2">
@@ -1205,7 +1222,6 @@ function App() {
   // Render Search View Content
   function renderSearch() {
     const q = debouncedSearchQuery.toLowerCase().trim()
-    const isDebouncing = searchQuery.trim() !== debouncedSearchQuery.trim()
     const searchResults = allProducts.filter((p) => {
       const matchesCat = !selectedCategorySlug || p.categoryId === selectedCategorySlug || p.categorySlug === selectedCategorySlug
       const matchesQuery = !q || p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q))
@@ -1922,110 +1938,82 @@ function App() {
         </div>
       )}
 
-      {/* Sticky Header - 100% Exact Match with Millet Amma Header */}
-      <header className="sticky top-0 z-40 bg-white text-gray-900 border-b border-gray-200 shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-3 sm:gap-6">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile Hamburger Menu Toggle Button */}
+      {/* Sticky Header - Organic Mandya / Connect to Farm Header */}
+      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-xs">
+        <div className="mx-auto max-w-7xl px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2 sm:gap-4">
+          {/* Mobile Left & Desktop Category Button */}
+          <div className="flex items-center gap-2">
+            {/* Mobile Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              title="Open Navigation Menu"
-              className="lg:hidden flex items-center justify-center p-2 rounded-2xl border border-gray-200 text-gray-700 hover:text-[#164220] hover:bg-gray-100 transition active:scale-95"
+              className="lg:hidden flex items-center justify-center p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
               aria-label="Open Navigation Menu"
             >
-              <IconMenu className="w-5 h-5 stroke-[2]" />
+              <IconMenu className="w-5 h-5" />
             </button>
 
-            {/* 1. Left Oval Logo Emblem */}
+            {/* Desktop Browse All Categories Button */}
             <button
               onClick={() => {
-                setActiveView('Home')
+                setActiveView('Search')
                 setSelectedCategorySlug('')
-                window.location.hash = '/'
               }}
-              className="flex items-center gap-2 rounded-full bg-[#184E28] px-3.5 py-1.5 text-white font-extrabold shadow-sm hover:bg-[#123C1E] transition border border-[#246B39]"
+              className="hidden lg:flex items-center gap-2 bg-[#164220] hover:bg-[#103318] text-white px-4 py-2 rounded-lg text-xs font-bold font-display shadow-xs transition"
             >
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#D4AF37] text-[#184E28]">
-                <IconSprout className="w-3.5 h-3.5 fill-current" />
-              </span>
-              <span className="text-xs font-black tracking-tight text-white uppercase whitespace-nowrap">Connect To Farm</span>
-            </button>
-          </div>
-
-          {/* 2. Center Navigation Links (OUR STORY & FARMERS with URL slug updates) */}
-          <nav className="hidden lg:flex items-center gap-8 text-[13px] font-normal tracking-wide uppercase font-sans">
-            {/* OUR STORY Page Link */}
-            <button
-              onClick={() => {
-                setActiveView('OurStory')
-                setSelectedCategorySlug('')
-                window.location.hash = '/our-story'
-              }}
-              className={`transition-colors duration-150 flex-shrink-0 ${
-                activeView === 'OurStory'
-                  ? 'text-[#246B39] font-medium'
-                  : 'text-[#2B2B2B] hover:text-[#246B39]'
-              }`}
-            >
-              OUR STORY
+              <span className="text-sm">▦</span>
+              <span>Browse All Categories</span>
+              <span className="text-[10px]">▼</span>
             </button>
 
-            {/* FARMERS Page Link */}
-            <button
-              onClick={() => {
-                setActiveView('Farmers')
-                setSelectedCategorySlug('')
-                window.location.hash = '/farmers'
-              }}
-              className={`transition-colors duration-150 flex-shrink-0 ${
-                activeView === 'Farmers'
-                  ? 'text-[#246B39] font-medium'
-                  : 'text-[#2B2B2B] hover:text-[#246B39]'
-              }`}
-            >
-              FARMERS
-            </button>
-          </nav>
-
-          {/* 3. Far-Right Action Icons (Location, Search, User, Wishlist, Cart) */}
-          <div className="flex items-center gap-5 text-gray-700">
-            {/* Location Icon */}
+            {/* Location Selector Pill */}
             <button
               onClick={() => {
                 setShowLocationModal(true)
                 window.location.hash = '/location'
               }}
-              title={locatingInProgress ? 'Locating...' : locationLabel}
-              className="text-gray-700 hover:text-[#246B39] transition relative p-1 flex items-center gap-1.5"
+              className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:border-[#164220] transition"
             >
-              <IconLocation className="w-5 h-5 stroke-[1.75]" />
-              <span className="hidden xl:inline-block text-[11px] font-bold text-gray-700 max-w-[120px] truncate">
-                {locationLabel}
-              </span>
+              <IconLocation className="w-4 h-4 text-[#164220]" />
+              <span className="max-w-[130px] sm:max-w-[180px] truncate">Deliver to {currentPincode || '500086'}</span>
+              <span className="text-[10px] text-slate-400">▼</span>
             </button>
+          </div>
 
-            {/* Search Icon */}
-            <button
-              onClick={() => setActiveView('Search')}
-              title="Search Products"
-              className="text-gray-700 hover:text-[#246B39] transition p-1"
-            >
-              <IconSearch className="w-5 h-5 stroke-[1.75]" />
-            </button>
+          {/* Center Search Input or Logo */}
+          <div className="flex-1 max-w-md mx-2 hidden md:block">
+            <div className="relative flex items-center">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value)
+                  if (activeView !== 'Search') setActiveView('Search')
+                }}
+                placeholder="organic search..."
+                className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-1.5 pr-9 text-xs font-medium text-slate-800 placeholder-slate-400 outline-none focus:border-[#164220] focus:ring-1 focus:ring-[#164220]"
+              />
+              <IconSearch className="pointer-events-none absolute right-3 w-4 h-4 text-slate-400" />
+            </div>
+          </div>
 
-            {/* User Profile Icon */}
-            <button
-              onClick={() => {
-                if (session) setActiveView('Profile')
-                else setShowLogin(true)
-              }}
-              title={session ? session.user.name : 'Login'}
-              className="text-gray-700 hover:text-[#246B39] transition p-1"
-            >
-              <IconUser className="w-5 h-5 stroke-[1.75]" />
-            </button>
+          {/* Logo Center (Mobile & Desktop Accent) */}
+          <button
+            onClick={() => {
+              setActiveView('Home')
+              setSelectedCategorySlug('')
+              window.location.hash = '/'
+            }}
+            className="flex items-center gap-1.5 font-display"
+          >
+            <span className="text-base sm:text-xl font-black text-[#164220] tracking-tight">Connect To Farm</span>
+            <span className="hidden sm:inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest border-l border-slate-300 pl-1.5">
+              PURE ROOTS
+            </span>
+          </button>
 
-            {/* Wishlist Heart Icon with Green Badge */}
+          {/* Far-Right Icons (Wishlist, Cart, Log in) */}
+          <div className="flex items-center gap-3 sm:gap-5 text-slate-700 font-semibold text-xs">
+            {/* Wishlist */}
             <button
               onClick={() => {
                 if (!session) {
@@ -2035,25 +2023,41 @@ function App() {
                   setWishlistOpen(true)
                 }
               }}
-              title="Wishlist"
-              className="text-gray-700 hover:text-[#164220] transition relative p-1"
+              className="hidden sm:flex items-center gap-1 hover:text-[#164220] transition relative"
             >
-              <IconHeart className={`w-5 h-5 stroke-[1.75] ${wishlistIds.size > 0 ? 'text-[#164220] fill-[#ECE5D1]' : ''}`} />
-              <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-[#164220] text-[10px] font-bold text-white shadow-sm">
-                {wishlistIds.size}
-              </span>
+              <IconHeart className={`w-4 h-4 ${wishlistIds.size > 0 ? 'text-[#164220] fill-[#164220]' : ''}`} />
+              <span>Wishlist</span>
+              {wishlistIds.size > 0 && (
+                <span className="ml-0.5 rounded-full bg-[#164220] px-1.5 py-0.2 text-[10px] font-bold text-white">
+                  {wishlistIds.size}
+                </span>
+              )}
             </button>
 
-            {/* Cart Icon with Black Badge */}
+            {/* Cart */}
             <button
               onClick={() => setCartOpen(true)}
-              title="Cart"
-              className="text-gray-700 hover:text-[#246B39] transition relative p-1"
+              className="flex items-center gap-1 hover:text-[#164220] transition relative"
             >
-              <IconShoppingBag className="w-5 h-5 stroke-[1.75]" />
-              <span className="absolute -top-1.5 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-bold text-white">
-                {cartItemCount}
-              </span>
+              <IconCart className="w-5 h-5 text-slate-800" />
+              <span className="hidden sm:inline">Cart</span>
+              {cartItemCount > 0 && (
+                <span className="rounded-full bg-[#164220] px-1.5 py-0.2 text-[10px] font-bold text-white">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+
+            {/* Log in / User */}
+            <button
+              onClick={() => {
+                if (session) setActiveView('Profile')
+                else setShowLogin(true)
+              }}
+              className="flex items-center gap-1 hover:text-[#164220] transition"
+            >
+              <IconUser className="w-4 h-4 text-slate-700" />
+              <span>{session ? session.user.name.split(' ')[0] : 'Log in'}</span>
             </button>
           </div>
         </div>
@@ -2640,29 +2644,42 @@ function App() {
         </div>
       )}
 
-      {/* Navigation Footer Dock */}
-      <nav className="fixed bottom-0 inset-x-0 z-30 glass-header-sage border-t border-[#6A7B67]/30 text-[#ECE5D1]/70">
-        <div className="mx-auto flex max-w-md items-center justify-around py-2.5">
+      {/* Floating Scroll-to-Top Button (↑) - Image 1, 2, 4, 5 */}
+      <button
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Scroll to top"
+        className="fixed bottom-16 right-4 z-40 h-10 w-10 rounded-full border-2 border-[#164220] bg-white text-[#164220] shadow-md flex items-center justify-center font-extrabold text-base hover:bg-emerald-50 transition active:scale-90"
+      >
+        ↑
+      </button>
+
+      {/* Navigation Footer Dock (Mobile Nav Bar matching Images 2-5) */}
+      <nav className="fixed bottom-0 inset-x-0 z-30 bg-white border-t border-slate-200 text-slate-600 shadow-md">
+        <div className="mx-auto flex max-w-lg items-center justify-around py-1.5 px-2">
           {[
             { id: 'Home', slug: '#/', label: 'Home', icon: IconHome },
-            { id: 'Search', slug: '#/search', label: 'Search', icon: IconSearch },
-            { id: 'Orders', slug: '#/orders', label: 'Orders', icon: IconOrders },
-            { id: 'Profile', slug: '#/profile', label: 'Profile', icon: IconUser },
+            { id: 'Co-Op', slug: '#/our-story', label: 'Co-Op', icon: IconSparkles },
+            { id: 'Search', slug: '#/search', label: 'Lab Reports', icon: IconShield },
+            { id: 'Farmers', slug: '#/farmers', label: 'FaaS', icon: IconSprout },
+            { id: 'Profile', slug: '#/profile', label: 'User', icon: IconUser },
           ].map((nav) => {
-            const isActive = activeView === nav.id
+            const isActive = activeView === nav.id || (nav.id === 'Co-Op' && activeView === 'OurStory')
             const Icon = nav.icon
             return (
               <button
-                key={nav.id}
+                key={nav.label}
                 onClick={() => {
-                  setActiveView(nav.id as NavView)
+                  if (nav.id === 'Co-Op') setActiveView('OurStory')
+                  else setActiveView(nav.id as NavView)
                   window.location.hash = nav.slug
                 }}
-                className={`flex flex-col items-center gap-1 text-[11px] font-extrabold transition ${
-                  isActive ? 'text-[#ECE5D1] scale-105' : 'hover:text-white'
+                className={`flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] font-semibold transition ${
+                  isActive ? 'text-[#164220] font-bold' : 'text-slate-500 hover:text-[#164220]'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#ECE5D1]' : 'text-[#ECE5D1]/60'}`} />
+                <div className={`p-1 rounded-xl transition ${isActive ? 'bg-emerald-50 text-[#164220]' : ''}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#164220]' : 'text-slate-500'}`} />
+                </div>
                 <span>{nav.label}</span>
               </button>
             )
@@ -2677,94 +2694,178 @@ function App() {
         const quantityInCart = cartQuantityMap[selectedProduct.id] ?? 0
         const busy = cartBusyProductId === selectedProduct.id
         const imageUrl = selectedProduct.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
+        const coopPrice = (Number(selectedProduct.price) * 0.9).toFixed(2)
+        const coopSavings = (Number(selectedProduct.price) * 0.1).toFixed(2)
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-            <div className="relative w-full max-w-2xl bg-white rounded-3xl p-6 shadow-2xl space-y-5 border border-gray-100 max-h-[90vh] overflow-y-auto">
-              {/* Top Bar with Close Button */}
-              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#164220]">
-                  URL Slug: /product/{selectedProduct.slug}
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="relative w-full max-w-2xl bg-white rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 border border-gray-100 max-h-[92vh] overflow-y-auto">
+              {/* Header Search & Breadcrumbs */}
+              <div className="space-y-2 border-b border-gray-100 pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 rounded-xl bg-gray-100 px-3 py-1.5 w-full max-w-sm">
+                    <IconSearch className="w-4 h-4 text-slate-400" />
+                    <span className="text-xs text-slate-400">search...</span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setSelectedProductSlug(null)
+                      window.location.hash = '/'
+                    }}
+                    className="rounded-full bg-gray-100 p-2 text-gray-500 hover:bg-gray-200 transition ml-2"
+                  >
+                    <IconCross className="w-4 h-4" />
+                  </button>
+                </div>
+                <p className="text-[11px] font-medium text-slate-500">
+                  Home / {selectedProduct.categorySlug || 'Harvest'} / <span className="text-slate-800 font-semibold">{selectedProduct.name}</span>
+                </p>
+              </div>
+
+              {/* Image & Thumbnails */}
+              <div className="space-y-2">
+                <div className="rounded-2xl bg-[#f4f5f6] p-6 flex items-center justify-center h-64 sm:h-72">
+                  <img src={imageUrl} alt={selectedProduct.name} className="max-h-full object-contain drop-shadow-sm" />
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  <div className="h-14 w-14 rounded-xl border-2 border-[#164220] p-1 bg-white flex items-center justify-center cursor-pointer">
+                    <img src={imageUrl} alt="Thumbnail 1" className="max-h-full object-contain" />
+                  </div>
+                  <div className="h-14 w-14 rounded-xl border border-gray-200 p-1 bg-gray-50 flex items-center justify-center cursor-pointer opacity-60 hover:opacity-100">
+                    <img src={imageUrl} alt="Thumbnail 2" className="max-h-full object-contain" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Title & Rating */}
+              <div className="space-y-1 pt-1">
+                <h1 className="font-display text-xl sm:text-2xl font-bold text-slate-900 leading-tight">
+                  {selectedProduct.name}
+                </h1>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-amber-500 font-bold">★★★★☆</span>
+                  <span className="text-slate-500 font-medium">(2 reviews)</span>
+                </div>
+              </div>
+
+              {/* Price & Stock */}
+              <div className="flex items-center gap-3 font-numeric">
+                <span className="text-2xl font-extrabold text-slate-950">₹ {selectedProduct.price}.00</span>
+                <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-[#164220] border border-emerald-200 flex items-center gap-1">
+                  ✓ {selectedProduct.stock > 0 ? `${selectedProduct.stock} Items In stock` : 'In Stock'}
                 </span>
+              </div>
+
+              {/* Co-Op Member Highlight Container */}
+              <div className="rounded-2xl bg-[#0a3a1b] p-4 text-white space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                      🍃 CO-OP MEMBER
+                    </span>
+                    <span className="text-sm font-extrabold text-white">₹{coopPrice}</span>
+                    <span className="text-xs text-emerald-200 font-medium">· save ₹{coopSavings}</span>
+                  </div>
+                  <a href="#coop" className="text-xs font-bold text-emerald-300 hover:underline">
+                    Join now &gt;
+                  </a>
+                </div>
+              </div>
+
+              {/* Co-Op Note Banner */}
+              <div className="rounded-xl bg-[#eaf5ee] border border-[#d2e9da] p-3 text-xs text-[#164220] flex items-start gap-2">
+                <span className="text-sm text-emerald-700">★</span>
+                <span>
+                  Co-Op members: an even bigger discount is applied automatically once you're logged in at checkout — the price shown here doesn't yet reflect it.
+                </span>
+              </div>
+
+              {/* Size Option Selector */}
+              <div className="space-y-2 pt-1">
+                <p className="text-xs font-semibold text-slate-500">Size</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border-2 border-[#164220] bg-[#eaf5ee] p-3 text-center cursor-pointer shadow-xs">
+                    <p className="text-xs font-bold text-[#164220]">{selectedProduct.unit || '100g'}</p>
+                    <p className="text-[11px] font-numeric text-emerald-800">₹ {selectedProduct.price}.00</p>
+                  </div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-3 text-center cursor-pointer hover:border-slate-300">
+                    <p className="text-xs font-semibold text-slate-700">200g</p>
+                    <p className="text-[11px] font-numeric text-slate-500">₹ {(Number(selectedProduct.price) * 1.95).toFixed(2)}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Side-by-Side Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                {quantityInCart > 0 ? (
+                  <div className="flex-1 flex items-center justify-between rounded-xl bg-[#164220] px-4 py-3 text-white shadow-md">
+                    <button
+                      onClick={() => changeCartQuantity(selectedProduct.id, quantityInCart - 1)}
+                      disabled={busy}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-[#103318] text-sm font-bold disabled:opacity-50"
+                    >
+                      -
+                    </button>
+                    <span className="text-sm font-numeric font-bold">{busy ? '...' : quantityInCart}</span>
+                    <button
+                      onClick={() => changeCartQuantity(selectedProduct.id, quantityInCart + 1)}
+                      disabled={busy || quantityInCart >= selectedProduct.stock}
+                      className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-[#103318] text-sm font-bold disabled:opacity-50"
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleAddToCart(selectedProduct)}
+                    disabled={selectedProduct.stock < 1 || busy}
+                    className="flex-1 rounded-xl bg-[#164220] hover:bg-[#103318] text-white py-3 px-4 font-bold text-sm shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    <span>{selectedProduct.stock < 1 ? 'Out of Stock' : busy ? 'Adding...' : 'Add'}</span>
+                  </button>
+                )}
+
                 <button
                   onClick={() => {
-                    setSelectedProductSlug(null)
-                    window.location.hash = '/'
+                    if (quantityInCart === 0) {
+                      void handleAddToCart(selectedProduct)
+                    }
+                    setCartOpen(true)
                   }}
-                  className="rounded-full bg-gray-100 p-2 text-gray-500 hover:bg-gray-200 transition"
+                  className="flex-1 rounded-xl border-2 border-[#164220] text-[#164220] hover:bg-emerald-50 bg-white py-3 px-4 font-bold text-sm transition text-center"
                 >
-                  <IconCross className="w-4 h-4" />
+                  Buy Now
                 </button>
               </div>
 
-              {/* Product Content Details */}
-              <div className="grid gap-6 sm:grid-cols-2">
-                <div className="rounded-2xl border border-gray-100 p-4 bg-gray-50 flex items-center justify-center h-64">
-                  <img src={imageUrl} alt={selectedProduct.name} className="max-h-full object-contain" />
-                </div>
+              {/* Description */}
+              <div className="space-y-1.5 border-t border-gray-100 pt-3">
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {selectedProduct.description ||
+                    `${selectedProduct.name} are naturally grown organic items known for soft texture, rich natural taste, and essential nutrients.`}
+                </p>
+                <button className="text-xs font-bold text-[#164220] underline">Read more</button>
+              </div>
 
-                <div className="space-y-4 flex flex-col justify-between">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-gray-900 leading-tight">{selectedProduct.name}</h2>
-                    <p className="text-xs text-gray-500 mt-1">Sourced from: <strong className="text-gray-800">{selectedProduct.farmerName || 'Verified Local Organic Farmer'}</strong></p>
-                    
-                    <div className="mt-3 flex items-baseline gap-2">
-                      <span className="text-2xl font-black text-gray-900">Rs. {selectedProduct.price}.00</span>
-                      <span className="text-xs text-gray-500 font-semibold">/ {selectedProduct.unit}</span>
+              {/* Key Highlights Section */}
+              <div className="space-y-3 border-t border-gray-100 pt-4">
+                <h3 className="font-display text-sm font-bold text-slate-900">Key Highlights</h3>
+                <div className="space-y-2">
+                  {[
+                    'Produced without Synthetic Pesticides',
+                    'Naturally sweet, soft, and chewy texture',
+                    'Rich in fiber, iron, potassium, and antioxidants',
+                    'Provides quick natural energy boost',
+                    'Ideal for cooking, baking, and snacking',
+                    'Carefully sourced and sun-dried for quality',
+                  ].map((highlight, idx) => (
+                    <div key={idx} className="flex items-start gap-2.5 text-xs text-slate-700 font-medium">
+                      <span className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-md border border-emerald-600 bg-emerald-50 text-[10px] font-bold text-[#164220]">
+                        ✓
+                      </span>
+                      <span>{highlight}</span>
                     </div>
-
-                    <div className="mt-3 space-y-1.5 text-xs text-gray-600 font-medium bg-emerald-50/60 p-3 rounded-xl border border-emerald-100">
-                      <p>🌾 <strong>Grade:</strong> {selectedProduct.gradeTag || 'Grade A Unpolished'}</p>
-                      <p>⚙️ <strong>Processing:</strong> {selectedProduct.processTag || 'Single De-husked & Hand Sorted'}</p>
-                      <p>📅 <strong>Harvest Date:</strong> {selectedProduct.harvestDate || 'Fresh Harvest 2025'}</p>
-                      <p className="text-emerald-800 font-bold">✓ 100% Lab Certified Zero Pesticides</p>
-                    </div>
-
-                    {selectedProduct.description && (
-                      <p className="mt-3 text-xs text-gray-600 leading-relaxed">{selectedProduct.description}</p>
-                    )}
-                  </div>
-
-                  {/* Actions & Stepper */}
-                  <div className="space-y-2 pt-2 border-t border-gray-100">
-                    {quantityInCart > 0 ? (
-                      <div className="flex items-center justify-between rounded-full bg-[#164220] px-3 py-2 text-white shadow-sm">
-                        <button
-                          onClick={() => changeCartQuantity(selectedProduct.id, quantityInCart - 1)}
-                          disabled={busy}
-                          className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#103318] text-sm font-bold transition disabled:opacity-50"
-                        >
-                          -
-                        </button>
-                        <span className="w-8 text-center text-xs font-extrabold">{busy ? '...' : quantityInCart}</span>
-                        <button
-                          onClick={() => changeCartQuantity(selectedProduct.id, quantityInCart + 1)}
-                          disabled={busy || quantityInCart >= selectedProduct.stock}
-                          className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#103318] text-sm font-bold transition disabled:opacity-50"
-                        >
-                          +
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => handleAddToCart(selectedProduct)}
-                        disabled={selectedProduct.stock < 1 || busy}
-                        className="w-full rounded-full bg-[#164220] hover:bg-[#103318] text-white py-3 px-4 font-bold text-xs shadow-md transition active:scale-95 flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        <span>{selectedProduct.stock < 1 ? 'Out of Stock' : busy ? 'Adding...' : 'Add to Cart'}</span>
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        void navigator.clipboard.writeText(window.location.href)
-                        setNotice('Product URL slug link copied to clipboard!')
-                      }}
-                      className="w-full text-center text-[11px] font-bold text-[#164220] hover:underline pt-1"
-                    >
-                      🔗 Copy Secure Product Slug Link
-                    </button>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

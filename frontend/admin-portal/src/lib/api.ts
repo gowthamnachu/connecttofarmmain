@@ -76,6 +76,7 @@ export type Order = {
     receiverName?: string | null
     receiverPhone?: string | null
     line1?: string
+    line2?: string | null
     city?: string
     state?: string
     pincode?: string
@@ -320,9 +321,39 @@ export async function getAdminOrders(): Promise<Order[]> {
   return (await res.json() as { orders: Order[] }).orders
 }
 
-export async function getOrderShippingLabel(orderId: string): Promise<{ labelUrl: string; awbNumber: string }> {
-  const res = await authFetch(`/orders/admin/${orderId}/label`)
-  return res.json()
+export async function downloadOfficialNimbuspostLabel(orderId: string): Promise<void> {
+  const session = getSession()
+  if (!session) throw new Error('Session expired, please log in again')
+
+  const res = await fetch(`${API_BASE_URL}/orders/admin/${orderId}/label`, {
+    headers: {
+      Authorization: `Bearer ${session.accessToken}`,
+    },
+  })
+
+  if (!res.ok) {
+    let errMessage = 'Could not fetch shipping label from NimbusPost'
+    try {
+      const errJson = (await res.json()) as { error?: string }
+      if (errJson.error) errMessage = errJson.error
+    } catch {
+      // ignore
+    }
+    throw new Error(errMessage)
+  }
+
+  const contentType = res.headers.get('content-type') || ''
+  if (contentType.includes('application/json')) {
+    const json = (await res.json()) as { labelUrl?: string }
+    if (json.labelUrl) {
+      window.open(json.labelUrl, '_blank')
+      return
+    }
+  }
+
+  const blob = await res.blob()
+  const blobUrl = URL.createObjectURL(blob)
+  window.open(blobUrl, '_blank')
 }
 
 export async function updateOrderStatus(orderId: string, status: string): Promise<Order> {
