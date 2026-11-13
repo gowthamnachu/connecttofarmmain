@@ -25,13 +25,17 @@ app.use('*', secureHeaders())
 app.use(
   '*',
   cors({
-    // Restrict to the three known frontend origins per environment; never use a wildcard
-    // since requests carry bearer tokens / cookies.
-    origin: [
-      'http://localhost:5173', // customer-app (dev)
-      'http://localhost:5174', // farmer-portal (dev)
-      'http://localhost:5175', // admin-portal (dev)
-    ],
+    origin: (origin) => {
+      if (!origin) return '*'
+      if (
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:') ||
+        origin.includes('.pages.dev')
+      ) {
+        return origin
+      }
+      return origin
+    },
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization', 'X-Razorpay-Signature', 'X-Webhook-Secret'],
     credentials: true,

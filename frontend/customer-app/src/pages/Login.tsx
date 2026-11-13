@@ -88,7 +88,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
         {onCancel && (
           <button
             onClick={onCancel}
-            className="absolute right-4 top-4 z-20 rounded-full bg-white/95 backdrop-blur px-4 py-1 text-xs font-extrabold text-slate-700 shadow-md border border-gray-200 hover:bg-white hover:shadow-lg transition"
+            className="absolute right-4 top-4 z-20 rounded-full bg-white/95 backdrop-blur px-4 py-1 text-xs font-semibold text-slate-700 shadow-md border border-gray-200 hover:bg-white hover:shadow-lg transition"
           >
             Skip
           </button>
@@ -139,7 +139,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
 
       {/* Main Body Content */}
       <div className="p-6 pt-3 space-y-5 bg-white text-left">
-        <h2 className="text-2xl font-black tracking-tight text-gray-900 leading-tight">
+        <h2 className="text-2xl font-semibold tracking-tight text-gray-900 leading-tight">
           Groceries delivered in <span className="text-[#164220]">minutes</span>
         </h2>
 
@@ -147,7 +147,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
           <form onSubmit={handleSendOtp} className="space-y-4">
             {/* Input Box matching Zepto style */}
             <div className="flex items-center rounded-2xl border border-gray-300 bg-white px-4 py-3.5 shadow-sm focus-within:border-[#164220] focus-within:ring-2 focus-within:ring-[#164220]/20 transition">
-              <span className="font-extrabold text-sm text-gray-900 border-r border-gray-300 pr-3.5 mr-3 flex-shrink-0">
+              <span className="font-semibold text-sm text-gray-900 border-r border-gray-300 pr-3.5 mr-3 flex-shrink-0">
                 IN +91
               </span>
               <input
@@ -157,13 +157,13 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
                 placeholder="Enter Phone Number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value.replace(/\D/g, ''))}
-                className="w-full bg-transparent text-sm font-extrabold text-gray-900 placeholder-gray-400 outline-none"
+                className="w-full bg-transparent text-sm font-medium text-gray-900 placeholder-gray-400 outline-none"
                 autoFocus
               />
             </div>
 
             {error && (
-              <p className="text-xs font-bold text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
+              <p className="text-xs font-medium text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
                 {error}
               </p>
             )}
@@ -172,7 +172,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
             <button
               type="submit"
               disabled={loading || phone.length !== 10}
-              className={`w-full rounded-2xl py-4 text-sm font-extrabold transition shadow-md flex items-center justify-center gap-2 ${
+              className={`w-full rounded-2xl py-4 text-sm font-semibold transition shadow-md flex items-center justify-center gap-2 ${
                 phone.length === 10 && !loading
                   ? 'bg-[#164220] text-white hover:bg-[#103318] active:scale-[0.98]'
                   : 'bg-[#E5E7EB] text-slate-400 cursor-not-allowed'
@@ -191,8 +191,8 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
             {/* Legal Terms Disclaimer Footer */}
             <div className="pt-2 text-center text-[11px] font-medium text-gray-500">
               By continuing, you agree to our{' '}
-              <span className="font-extrabold text-[#164220] hover:underline cursor-pointer">Terms of Use</span> &{' '}
-              <span className="font-extrabold text-[#164220] hover:underline cursor-pointer">Privacy Policy</span>
+              <span className="font-semibold text-[#164220] hover:underline cursor-pointer">Terms of Use</span> &{' '}
+              <span className="font-semibold text-[#164220] hover:underline cursor-pointer">Privacy Policy</span>
             </div>
           </form>
         )}
@@ -200,7 +200,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
         {step === 'otp' && (
           <form onSubmit={handleVerifyOtp} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1.5">
+              <label className="block text-xs font-medium text-gray-700 mb-1.5">
                 Enter 6-Digit OTP sent to +91 {phone}
               </label>
               <div className="flex items-center rounded-2xl border border-gray-300 bg-white px-4 py-3.5 shadow-sm focus-within:border-[#164220] focus-within:ring-2 focus-within:ring-[#164220]/20 transition">
@@ -211,7 +211,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
                   placeholder="• • • • • •"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                  className="w-full tracking-[0.3em] text-center text-lg font-extrabold text-gray-900 placeholder-gray-300 outline-none"
+                  className="w-full tracking-[0.3em] text-center text-lg font-semibold text-gray-900 placeholder-gray-300 outline-none"
                   autoFocus
                 />
               </div>
@@ -219,7 +219,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
 
             {!isExistingUser && (
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                <label className="block text-xs font-medium text-gray-700 mb-1.5">
                   Full Name (Required for First-Time Registration)
                 </label>
                 <input
@@ -227,14 +227,14 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
                   placeholder="e.g. Rahul Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-xs font-bold text-gray-900 placeholder-gray-400 outline-none focus:border-[#164220] focus:ring-2 focus:ring-[#164220]/20"
+                  className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3.5 text-xs font-medium text-gray-900 placeholder-gray-400 outline-none focus:border-[#164220] focus:ring-2 focus:ring-[#164220]/20"
                   required
                 />
               </div>
             )}
 
             {error && (
-              <p className="text-xs font-bold text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
+              <p className="text-xs font-medium text-rose-600 bg-rose-50 p-3 rounded-xl border border-rose-200">
                 {error}
               </p>
             )}
@@ -242,7 +242,7 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
             <button
               type="submit"
               disabled={loading || otp.length !== 6}
-              className={`w-full rounded-2xl py-4 text-sm font-extrabold transition shadow-md flex items-center justify-center gap-2 ${
+              className={`w-full rounded-2xl py-4 text-sm font-semibold transition shadow-md flex items-center justify-center gap-2 ${
                 otp.length === 6 && !loading
                   ? 'bg-[#164220] text-white hover:bg-[#103318] active:scale-[0.98]'
                   : 'bg-[#E5E7EB] text-slate-400 cursor-not-allowed'
@@ -261,15 +261,15 @@ export default function Login({ onSuccess, onCancel }: { onSuccess: () => void; 
             <button
               type="button"
               onClick={() => setStep('phone')}
-              className="w-full text-center text-xs font-bold text-[#164220] hover:underline transition pt-1"
+              className="w-full text-center text-xs font-semibold text-[#164220] hover:underline transition pt-1"
             >
               ← Change Mobile Number
             </button>
 
             <div className="pt-2 text-center text-[11px] font-medium text-gray-500">
               By continuing, you agree to our{' '}
-              <span className="font-extrabold text-[#164220] hover:underline cursor-pointer">Terms of Use</span> &{' '}
-              <span className="font-extrabold text-[#164220] hover:underline cursor-pointer">Privacy Policy</span>
+              <span className="font-semibold text-[#164220] hover:underline cursor-pointer">Terms of Use</span> &{' '}
+              <span className="font-semibold text-[#164220] hover:underline cursor-pointer">Privacy Policy</span>
             </div>
           </form>
         )}

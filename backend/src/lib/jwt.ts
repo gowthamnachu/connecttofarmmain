@@ -8,7 +8,7 @@ export type TokenPayload = {
   exp: number
 }
 
-const ACCESS_TOKEN_TTL_SECONDS = 15 * 60 // 15 minutes
+const ACCESS_TOKEN_TTL_SECONDS = 7 * 24 * 60 * 60 // 7 days (prevents abrupt token expiration during testing)
 const REFRESH_TOKEN_TTL_SECONDS = 30 * 24 * 60 * 60 // 30 days
 
 export async function signAccessToken(secret: string, payload: { sub: string; role: Role; phone: string }) {

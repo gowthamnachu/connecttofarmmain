@@ -19,7 +19,8 @@ export const requireAuth: MiddlewareHandler<AppEnv> = async (c, next) => {
   try {
     const payload = await verifyToken(c.env.JWT_SECRET, token)
     c.set('auth', { id: payload.sub, role: payload.role, phone: payload.phone })
-  } catch {
+  } catch (err) {
+    console.error('requireAuth verifyToken error:', err, 'Token was:', token ? token.slice(0, 20) : 'none')
     throw new HTTPException(401, { message: 'Invalid or expired token' })
   }
 

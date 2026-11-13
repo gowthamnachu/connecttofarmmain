@@ -3,11 +3,18 @@ import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { eq, and } from 'drizzle-orm'
 import { createDb } from '../db/client'
-import { farmers, products } from '../db/schema'
+import { farmers, products, categories } from '../db/schema'
 import { requireAuth } from '../middleware/auth'
 import { requireRole } from '../middleware/rbac'
 import { validateBody } from '../middleware/validate'
 import type { AppEnv } from '../types/bindings'
+import {
+  sarvamTranscribe,
+  sarvamTextToSpeech,
+  sarvamDialogueAgent,
+  INDIC_CROPS,
+  type SarvamDraftProduct,
+} from '../lib/sarvam'
 
 const app = new Hono<AppEnv>()
 
@@ -196,5 +203,220 @@ app.patch(
     return c.json({ product: updated })
   }
 )
+
+const farmerCreateProductSchema = z.object({
+  name: z.string().trim().min(2).max(150),
+  categoryId: z.string().uuid().optional(),
+  price: z.preprocess((val) => String(val).replace(/[^\d.]/g, ''), z.string().min(1)),
+  unit: z.string().min(1).max(20).default('kg'),
+  stock: z.preprocess((val) => Math.floor(Number(val) || 0), z.number().int().min(0)),
+  description: z.string().max(2000).optional(),
+  harvestDate: z.string().max(50).optional(),
+  gradeTag: z.string().max(100).optional(),
+  processTag: z.string().max(150).optional(),
+  images: z.array(z.string().url()).default([]),
+})
+
+function createProductSlug(name: string): string {
+  const base = name
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 50) || 'product'
+  return `${base}-${Date.now().toString(36)}`
+}
+
+app.post(
+  '/me/products',
+  requireAuth,
+  requireRole('farmer'),
+  validateBody(farmerCreateProductSchema),
+  async (c) => {
+    const auth = c.get('auth')
+    const data = c.get('validatedBody' as never) as z.infer<typeof farmerCreateProductSchema>
+    const db = createDb(c.env.DATABASE_URL)
+
+    // Ensure category ID is valid
+    let categoryId = data.categoryId
+    if (!categoryId) {
+      const activeCats = await db.select({ id: categories.id, slug: categories.slug }).from(categories).where(eq(categories.isActive, true))
+      categoryId = activeCats[0]?.id
+    }
+
+    const slug = createProductSlug(data.name)
+    const matchedCropDef = INDIC_CROPS.find((crop) => crop.name === data.name || data.name.includes(crop.teluguShort))
+    const defaultImages = data.images && data.images.length > 0 ? data.images : (matchedCropDef?.defaultImage ? [matchedCropDef.defaultImage] : [])
+
+    const [created] = await db
+      .insert(products)
+      .values({
+        ...data,
+        categoryId: categoryId!,
+        slug,
+        farmerId: auth.id,
+        isCertifiedNoPesticides: true,
+        isActive: true,
+        images: defaultImages,
+      })
+      .returning()
+
+    console.log('[POST /me/products] Successfully created product:', created.id, created.name)
+    return c.json({ product: created }, 201)
+  }
+)
+
+app.post('/voice/chat', requireAuth, requireRole('farmer'), async (c) => {
+  const auth = c.get('auth')
+  const apiKey = c.env.SARVAM_API_KEY
+  if (!apiKey) {
+    return c.json({ error: 'SARVAM_API_KEY is not configured on the server' }, 500)
+  }
+
+  const db = createDb(c.env.DATABASE_URL)
+  const allCategories = await db
+    .select({ id: categories.id, name: categories.name, slug: categories.slug })
+    .from(categories)
+    .where(eq(categories.isActive, true))
+
+  let farmerText = ''
+  let currentDraft: SarvamDraftProduct = {}
+  let history: Array<{ role: 'user' | 'assistant'; content: string }> = []
+
+  const contentType = c.req.header('content-type') || ''
+  if (contentType.includes('multipart/form-data')) {
+    const formData = await c.req.formData()
+    const audioEntry = formData.get('audio')
+    const textEntry = formData.get('text')
+    const draftJson = formData.get('draft')
+    const historyJson = formData.get('history')
+
+    if (draftJson && typeof draftJson === 'string') {
+      try {
+        currentDraft = JSON.parse(draftJson)
+      } catch { }
+    }
+
+    if (historyJson && typeof historyJson === 'string') {
+      try {
+        history = JSON.parse(historyJson)
+      } catch { }
+    }
+
+    if (textEntry && typeof textEntry === 'string' && textEntry.trim()) {
+      farmerText = textEntry.trim()
+    } else if (audioEntry && audioEntry instanceof Blob) {
+      try {
+        farmerText = await sarvamTranscribe(apiKey, audioEntry, 'farmer_speech.webm')
+      } catch (err) {
+        console.error('STT error during voice chat:', err)
+        farmerText = ''
+      }
+    }
+  } else {
+    const body = (await c.req.json().catch(() => ({}))) as {
+      text?: string
+      draft?: SarvamDraftProduct
+      history?: Array<{ role: 'user' | 'assistant'; content: string }>
+    }
+    farmerText = (body.text || '').trim()
+    currentDraft = body.draft || {}
+    history = body.history || []
+  }
+
+  if (!farmerText) {
+    const fallbackAudio = await sarvamTextToSpeech(apiKey, 'మీ మాట వినపడలేదు, దయచేసి మళ్లీ మాట్లాడండి.')
+    return c.json({
+      transcript: '',
+      englishSummary: 'Could not hear clearly. Please speak your crop details again.',
+      teluguReply: 'మీ మాట వినపడలేదు, దయచేసి మళ్లీ మాట్లాడండి.',
+      audioBase64: fallbackAudio,
+      updatedDraft: currentDraft,
+      isComplete: false,
+      isConfirmed: false,
+      createdProduct: null,
+    })
+  }
+
+  // Run dialogue understanding and slot filling with memory and Indic entity recognition
+  const dialogueResult = await sarvamDialogueAgent(apiKey, farmerText, currentDraft, allCategories, history)
+
+  // Ensure categoryId and categoryName are filled
+  if (!dialogueResult.updatedDraft.categoryId && allCategories.length > 0) {
+    dialogueResult.updatedDraft.categoryId = allCategories[0].id
+    dialogueResult.updatedDraft.categoryName = allCategories[0].name
+  } else if (dialogueResult.updatedDraft.categoryId && !dialogueResult.updatedDraft.categoryName) {
+    const matched = allCategories.find((c) => c.id === dialogueResult.updatedDraft.categoryId)
+    if (matched) dialogueResult.updatedDraft.categoryName = matched.name
+  }
+
+  console.log('[voice/chat] Turn summary:', {
+    text: farmerText,
+    isConfirmed: dialogueResult.isConfirmed,
+    isComplete: dialogueResult.isComplete,
+    crop: dialogueResult.updatedDraft.name,
+    stock: dialogueResult.updatedDraft.stock,
+    price: dialogueResult.updatedDraft.price,
+  })
+
+  let createdProduct = null
+
+  // If the product details are complete and the farmer confirmed, auto-save to database
+  if (
+    dialogueResult.isConfirmed &&
+    dialogueResult.updatedDraft.name &&
+    dialogueResult.updatedDraft.stock &&
+    dialogueResult.updatedDraft.price
+  ) {
+    try {
+      const cleanPrice = String(dialogueResult.updatedDraft.price).replace(/[^\d.]/g, '') || '0'
+      const cleanStock = Math.floor(Number(dialogueResult.updatedDraft.stock) || 0)
+      const catId = dialogueResult.updatedDraft.categoryId || allCategories[0]?.id
+
+      const slug = createProductSlug(dialogueResult.updatedDraft.name)
+      const matchedCropDef = INDIC_CROPS.find((c) => c.name === dialogueResult.updatedDraft.name)
+      const cropImages = matchedCropDef?.defaultImage ? [matchedCropDef.defaultImage] : []
+
+      const [saved] = await db
+        .insert(products)
+        .values({
+          name: dialogueResult.updatedDraft.name,
+          categoryId: catId,
+          farmerId: auth.id,
+          slug,
+          stock: cleanStock,
+          unit: dialogueResult.updatedDraft.unit || 'kg',
+          price: cleanPrice,
+          description:
+            dialogueResult.updatedDraft.description ||
+            `${dialogueResult.updatedDraft.name} harvested freshly and listed by certified farmer.`,
+          harvestDate: dialogueResult.updatedDraft.harvestDate || new Date().toISOString().split('T')[0],
+          gradeTag: dialogueResult.updatedDraft.gradeTag || 'Grade A',
+          isCertifiedNoPesticides: true,
+          isActive: true,
+          images: cropImages,
+        })
+        .returning()
+      createdProduct = saved
+      console.log('[voice/chat] Successfully auto-saved product:', createdProduct.id, createdProduct.name)
+    } catch (saveErr) {
+      console.error('[voice/chat] Auto-save error:', saveErr)
+    }
+  }
+
+  // Synthesize Telugu voice reply
+  const audioBase64 = await sarvamTextToSpeech(apiKey, dialogueResult.teluguReply)
+
+  return c.json({
+    transcript: farmerText,
+    englishSummary: dialogueResult.englishSummary,
+    teluguReply: dialogueResult.teluguReply,
+    audioBase64,
+    updatedDraft: dialogueResult.updatedDraft,
+    isComplete: dialogueResult.isComplete,
+    isConfirmed: dialogueResult.isConfirmed,
+    createdProduct,
+  })
+})
 
 export default app

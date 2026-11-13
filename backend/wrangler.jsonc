@@ -9,8 +9,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "RATE_LIMIT_KV",
-			"id": "53f0a351fa2549e9a56dd68d39261bf5",
-			"remote": true
+			"id": "53f0a351fa2549e9a56dd68d39261bf5"
 		}
 	],
 	"r2_buckets": [

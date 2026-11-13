@@ -54,21 +54,63 @@ import {
   IconHeart,
   IconMenu,
 } from './components/Icons'
+import {
+  getProductCropImage,
+  HERO_HARVEST_BANNER,
+  HERO_MILLETS_BANNER,
+  HERO_FARMER_BANNER,
+} from './lib/cropImages'
 
 const CATEGORIES = [
-  { name: 'MILLET BASKET', slug: 'millets', discount: 'UP TO 30% OFF', accent: 'from-[#C29845]/20 via-[#E8DFC9]/40 to-white' },
-  { name: 'SIRIDHANYA', slug: 'siridhanya', discount: 'MIN 20% OFF', accent: 'from-[#A98234]/15 via-[#E8DFC9]/40 to-white' },
-  { name: 'COMBOS', slug: 'combos', discount: 'FRESH HARVEST', accent: 'from-[#4A5947]/20 via-[#E8DFC9]/40 to-white' },
-  { name: 'READY TO COOK', slug: 'ready-to-cook', discount: 'PURE & ORGANIC', accent: 'from-amber-800/15 via-[#E8DFC9]/40 to-white' },
-  { name: 'SWEETS & SNACKS', slug: 'snacks', discount: 'COLD PRESSED', accent: 'from-yellow-700/15 via-[#E8DFC9]/40 to-white' },
-  { name: 'BATTERS', slug: 'batters', discount: 'HEALTHY BITES', accent: 'from-[#C29845]/25 via-[#E8DFC9]/40 to-white' },
+  {
+    name: 'MILLET BASKET',
+    slug: 'millets',
+    discount: 'UP TO 30% OFF',
+    accent: 'from-[#C29845]/20 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'PULSES & DALS',
+    slug: 'pulses',
+    discount: 'MIN 20% OFF',
+    accent: 'from-[#A98234]/15 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'GRAINS & RICE',
+    slug: 'grains',
+    discount: 'FRESH HARVEST',
+    accent: 'from-[#4A5947]/20 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'COMBOS & PACKS',
+    slug: 'combos',
+    discount: 'VALUE PACKS',
+    accent: 'from-amber-800/15 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'COLD-PRESSED OILS',
+    slug: 'oils',
+    discount: 'WOOD PRESSED',
+    accent: 'from-yellow-700/15 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    name: 'SPICES & HERBS',
+    slug: 'spices',
+    discount: 'PURE & AROMATIC',
+    accent: 'from-[#C29845]/25 via-[#E8DFC9]/40 to-white',
+    img: 'https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=400&q=80',
+  },
 ]
 
 const SEARCH_PLACEHOLDERS = [
   "Search 'Organic Foxtail Millet'",
+  "Search 'Unpolished Toor Dal (కందులు)'",
   "Search 'Cold Pressed Groundnut Oil'",
   "Search 'A2 Desi Cow Ghee'",
-  "Search 'Unpolished Toor Dal'",
   "Search 'Organic Turmeric Powder'",
 ]
 
@@ -76,23 +118,26 @@ const BANNERS = [
   {
     id: 1,
     title: 'Pure Organic Millets & Healthy Grains',
-    subtitle: 'Directly sourced from verified local organic farmers',
+    subtitle: 'Directly sourced from verified local organic farmers in Mandya & Guntur',
     tag: 'ORGANIC MILLET HARVEST',
     bg: 'from-[#2D382C] via-[#3B4A39] to-[#C29845]',
+    img: HERO_HARVEST_BANNER,
   },
   {
     id: 2,
     title: 'Millet Amma Inspired Health & Wellness',
-    subtitle: 'Unpolished, gluten-free, zero mineral oil polish',
+    subtitle: 'Unpolished, gluten-free, zero mineral oil polish • Direct fair pricing',
     tag: '100% NATURAL',
-    bg: 'from-[#C29845] via-[#A98234] to-[#2D382C]',
+    bg: 'from-[#164220] via-[#2D382C] to-[#C29845]',
+    img: HERO_MILLETS_BANNER,
   },
   {
     id: 3,
-    title: 'Express Farm-to-Kitchen Delivery',
-    subtitle: 'Traditionally wood-pressed oils & lab certified millets',
+    title: 'Empowering 500+ Indian Organic Farmers',
+    subtitle: 'Vernacular Voice AI enabled • Express dispatch directly to your kitchen',
     tag: 'LAB CERTIFIED',
     bg: 'from-[#2D382C] via-[#1E261D] to-[#4A5947]',
+    img: HERO_FARMER_BANNER,
   },
 ]
 
@@ -172,7 +217,7 @@ function loadRazorpayScript(): Promise<boolean> {
 type NavView = 'Home' | 'Search' | 'Farmers' | 'OurStory' | 'Orders' | 'Profile'
 type PostLoginTarget = 'cart' | 'orders' | 'profile' | null
 
-// Millet Amma Plain White Product Tile with Deep Green Buttons
+// Modern E-Commerce Organic Farm Product Tile
 function ProductTile({
   product,
   quantityInCart,
@@ -192,27 +237,31 @@ function ProductTile({
   onClickProduct?: (product: Product) => void
   busy: boolean
 }) {
-  const imageUrl = product.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
-  const coopPrice = (Number(product.price) * 0.9).toFixed(2)
+  const imageUrl = getProductCropImage(product.name, product.images)
+  const numPrice = Number(product.price) || 0
+  const mrpPrice = Math.round(numPrice * 1.15)
+  const coopPrice = (numPrice * 0.9).toFixed(2)
   const [selectedWeight, setSelectedWeight] = useState(product.unit || '100g')
 
   return (
-    <article className="group relative flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-3.5 shadow-xs hover:border-[#164220]/40 hover:shadow-md transition-all duration-300">
-      {/* Product Image Box */}
+    <article className="group relative flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-3 sm:p-3.5 shadow-2xs hover:border-[#164220]/60 hover:shadow-xl transition-all duration-300">
+      {/* Product Image Box with Zoom */}
       <div
         onClick={() => onClickProduct?.(product)}
-        className="relative h-44 w-full bg-[#f4f5f6] rounded-xl p-3 flex items-center justify-center overflow-hidden mb-3 cursor-pointer group-hover:bg-[#ebedee] transition"
+        className="relative h-44 sm:h-48 w-full bg-neutral-100 rounded-xl overflow-hidden mb-3 cursor-pointer transition group-hover:bg-neutral-200/50"
       >
-        {/* Top Left Discount Tag */}
-        <div className="absolute top-2 left-2 rounded-md bg-[#e53935] px-2 py-0.5 text-[11px] font-extrabold text-white shadow-xs z-10">
-          -10%
+        {/* Top Left Organic Guarantee Tag */}
+        <div className="absolute top-2.5 left-2.5 rounded-lg bg-[#164220] text-white px-2 py-0.5 text-[10px] font-medium shadow-xs z-10 flex items-center gap-1 backdrop-blur-xs">
+          <span>🍃</span>
+          <span>100% Organic</span>
         </div>
 
         <img
           src={imageUrl}
           alt={product.name}
-          className="h-full w-full object-contain group-hover:scale-105 transition-transform duration-300 ease-out"
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
         />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
         {/* Top Right Wishlist Button */}
         <button
@@ -221,12 +270,26 @@ function ProductTile({
             onToggleWishlist(product)
           }}
           aria-label="Add to wishlist"
-          className={`absolute top-2 right-2 h-7 w-7 rounded-full bg-white/90 backdrop-blur-md border flex items-center justify-center shadow-xs transition z-10 ${
-            isWishlisted ? 'text-[#164220] bg-emerald-50 border-[#164220]' : 'text-slate-400 border-slate-200 hover:text-[#164220]'
+          className={`absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-white/95 backdrop-blur-md border flex items-center justify-center shadow-xs transition-all z-10 cursor-pointer ${
+            isWishlisted
+              ? 'text-rose-600 bg-rose-50 border-rose-200 scale-105'
+              : 'text-slate-400 border-slate-200 hover:text-rose-500 hover:border-rose-200 hover:scale-110'
           }`}
         >
-          <IconHeart className={`w-3.5 h-3.5 ${isWishlisted ? 'fill-current text-[#164220]' : ''}`} />
+          <IconHeart className={`w-4 h-4 ${isWishlisted ? 'fill-current text-rose-500' : ''}`} />
         </button>
+
+        {/* Bottom Farm Direct Overlay Tag */}
+        <div className="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[10px] font-medium text-white drop-shadow">
+          <span className="bg-black/60 backdrop-blur-xs px-2 py-0.5 rounded-md truncate max-w-[130px]">
+            {product.farmerName ? `🌾 ${product.farmerName}` : '🌾 Verified Farm'}
+          </span>
+          {product.stock <= 20 && product.stock > 0 && (
+            <span className="bg-amber-600/95 px-1.5 py-0.5 rounded-md text-[9px] font-medium">
+              Only {product.stock} left
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Info Section */}
@@ -235,56 +298,67 @@ function ProductTile({
           {/* Title */}
           <h3
             onClick={() => onClickProduct?.(product)}
-            className="font-display text-xs md:text-sm font-semibold text-slate-800 line-clamp-2 leading-snug hover:text-[#164220] transition min-h-[36px] cursor-pointer"
+            className="font-display text-xs sm:text-sm font-semibold text-slate-800 line-clamp-2 leading-snug group-hover:text-[#164220] transition min-h-[36px] cursor-pointer"
           >
             {product.name}
           </h3>
 
-          {/* Main Price */}
-          <div className="mt-2 flex items-baseline gap-1 font-numeric">
-            <span className="text-sm font-bold text-slate-900">₹</span>
-            <span className="text-lg font-extrabold text-slate-950">{product.price}.00</span>
+          {/* Pricing Row with MRP Comparison */}
+          <div className="mt-2 flex items-baseline gap-2 font-numeric">
+            <span className="text-base font-semibold text-[#164220]">
+              ₹{product.price}.00
+            </span>
+            <span className="text-xs text-slate-400 line-through">
+              ₹{mrpPrice}.00
+            </span>
+            <span className="text-[10px] font-medium text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+              SAVE 15%
+            </span>
           </div>
 
           {/* Co-Op Member Price Badge Pill */}
-          <div className="mt-1.5 rounded-lg bg-[#e6f4ea] border border-[#cbe5d4] px-2.5 py-1 text-[11px] font-semibold text-[#164220] flex items-center gap-1.5">
-            <span className="text-xs">🍃</span>
-            <span>₹ {coopPrice} for Co-Op Members</span>
+          <div className="mt-1.5 rounded-lg bg-[#e6f4ea] border border-[#cbe5d4] px-2.5 py-1 text-[10px] font-normal text-[#164220] flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <span>🍃</span>
+              <span>Co-Op Member Rate</span>
+            </span>
+            <span className="font-semibold font-numeric">₹{coopPrice}</span>
           </div>
         </div>
 
         {/* Weight Selector Dropdown & Add Button Row */}
-        <div className="mt-3 flex items-center gap-2 pt-1">
+        <div className="mt-3 flex items-center gap-2 pt-1 border-t border-slate-100">
           <div className="relative">
             <select
               value={selectedWeight}
               onChange={(e) => setSelectedWeight(e.target.value)}
-              className="appearance-none rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 pr-6 text-xs font-semibold text-slate-700 outline-none hover:border-slate-400 cursor-pointer"
+              className="appearance-none rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 pr-6 text-xs font-medium text-slate-700 outline-none hover:border-slate-400 cursor-pointer"
             >
               <option value={product.unit || '100g'}>{product.unit || '100g'}</option>
               <option value="200g">200g</option>
               <option value="500g">500g</option>
+              <option value="1kg">1kg</option>
             </select>
             <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-500">▼</span>
           </div>
 
           {/* Add / Stepper Button */}
           {quantityInCart > 0 ? (
-            <div className="flex-1 flex items-center justify-between rounded-lg bg-[#164220] px-2 py-1 text-white shadow-xs">
+            <div className="flex-1 flex items-center justify-between rounded-xl bg-[#164220] px-2 py-1.5 text-white shadow-xs">
               <button
                 onClick={() => onUpdateQty(product.id, quantityInCart - 1)}
                 disabled={busy}
                 aria-label="Decrease quantity"
-                className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#103318] text-xs font-extrabold transition disabled:opacity-50"
+                className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-[#103318] text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
               >
                 -
               </button>
-              <span className="text-xs font-numeric font-bold">{busy ? '...' : quantityInCart}</span>
+              <span className="text-xs font-numeric font-medium">{busy ? '...' : quantityInCart}</span>
               <button
                 onClick={() => onUpdateQty(product.id, quantityInCart + 1)}
                 disabled={busy || quantityInCart >= product.stock}
                 aria-label="Increase quantity"
-                className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#103318] text-xs font-extrabold transition disabled:opacity-50"
+                className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-[#103318] text-xs font-semibold transition disabled:opacity-50 cursor-pointer"
               >
                 +
               </button>
@@ -293,9 +367,9 @@ function ProductTile({
             <button
               onClick={() => onAdd(product)}
               disabled={product.stock < 1 || busy}
-              className="flex-1 rounded-lg bg-[#164220] hover:bg-[#103318] text-white py-1.5 px-3 font-display font-bold text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center disabled:opacity-50"
+              className="flex-1 rounded-xl bg-[#164220] hover:bg-[#103318] text-white py-2 px-3 font-display font-medium text-xs shadow-xs transition-all active:scale-95 flex items-center justify-center disabled:opacity-50 cursor-pointer"
             >
-              <span>{product.stock < 1 ? 'Out' : busy ? '...' : 'Add'}</span>
+              <span>{product.stock < 1 ? 'Out of Stock' : busy ? 'Adding…' : 'Add to Cart'}</span>
             </button>
           )}
         </div>
@@ -1006,15 +1080,22 @@ function App() {
     return (
       <div className="space-y-6 pb-24">
         {/* Express Banner Carousel */}
-        <section className="relative overflow-hidden rounded-3xl border border-[#164220]/20 shadow-md transition-all duration-500">
-          <div className={`relative bg-gradient-to-r ${activeBanner.bg} p-6 sm:p-8 text-white min-h-[180px] flex flex-col justify-between`}>
+        <section className="relative overflow-hidden rounded-3xl border border-[#164220]/20 shadow-lg transition-all duration-500 group">
+          {activeBanner.img && (
+            <img
+              src={activeBanner.img}
+              alt={activeBanner.title}
+              className="absolute inset-0 w-full h-full object-cover opacity-30 filter blur-[0.5px] scale-105 group-hover:scale-100 transition-transform duration-1000"
+            />
+          )}
+          <div className={`relative bg-gradient-to-r ${activeBanner.bg} p-6 sm:p-8 text-white min-h-[190px] flex flex-col justify-between`}>
             <div className="flex items-start justify-between gap-4">
               <div className="max-w-lg">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-bold text-white backdrop-blur">
                   <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
                   {activeBanner.tag}
                 </span>
-                <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl tracking-tight leading-tight text-white">
+                <h1 className="mt-3 text-2xl font-semibold sm:text-3xl tracking-tight leading-tight text-white">
                   {activeBanner.title}
                 </h1>
                 <p className="mt-1.5 text-xs sm:text-sm text-white/90 font-medium">
@@ -1024,8 +1105,8 @@ function App() {
 
               {/* Express Badge */}
               <div className="hidden sm:flex flex-col items-end rounded-2xl bg-white/10 p-3.5 backdrop-blur border border-white/15 text-right">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-white">Direct Farm</span>
-                <span className="text-xl font-extrabold text-white mt-0.5">⚡ 15 MIN</span>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-white">Direct Farm</span>
+                <span className="text-xl font-semibold text-white mt-0.5">⚡ 15 MIN</span>
                 <span className="text-[10px] text-white/80 font-medium">Express Dispatch</span>
               </div>
             </div>
@@ -1082,8 +1163,8 @@ function App() {
           <div className="lg:col-span-9 space-y-4">
             <div className="flex items-end justify-between gap-3 border-b border-slate-200 pb-2">
               <div>
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#164220]">Direct Farm Harvest</span>
-                <h2 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#164220]">Direct Farm Harvest</span>
+                <h2 className="text-lg font-semibold text-slate-900 tracking-tight">
                   {selectedCategorySlug ? `Category: ${selectedCategorySlug.toUpperCase()}` : 'All Organic Products'}
                 </h2>
               </div>
@@ -1132,7 +1213,7 @@ function App() {
           {/* Category Sidebar (Right Column on Desktop - Image 1) */}
           <aside className="hidden lg:block lg:col-span-3 space-y-3 sticky top-20">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
-              <h3 className="font-display text-base font-extrabold text-slate-900 border-b-2 border-[#164220] pb-1 inline-block mb-3">
+              <h3 className="font-display text-base font-semibold text-slate-900 border-b-2 border-[#164220] pb-1 inline-block mb-3">
                 Category
               </h3>
               <div className="space-y-1.5">
@@ -1165,8 +1246,8 @@ function App() {
         <section className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#6A7B67]">Transparency</span>
-              <h2 className="text-lg font-extrabold text-[#2D382C] tracking-tight">Meet Your Organic Growers</h2>
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-[#6A7B67]">Transparency</span>
+              <h2 className="text-lg font-semibold text-[#2D382C] tracking-tight">Meet Your Organic Growers</h2>
             </div>
           </div>
 
@@ -1197,7 +1278,7 @@ function App() {
                       )}
                     </div>
                     <div>
-                      <h4 className="text-xs font-extrabold text-[#2D382C] group-hover:text-[#164220] transition">{farmer.name}</h4>
+                      <h4 className="text-xs font-semibold text-[#2D382C] group-hover:text-[#164220] transition">{farmer.name}</h4>
                       <p className="text-[10px] font-medium text-slate-500">
                         {farmer.village ? `${farmer.village}, ` : ''}{farmer.district ?? 'India'}
                       </p>
@@ -1208,7 +1289,7 @@ function App() {
                       <IconCheck className="w-3 h-3 text-[#6A7B67]" />
                       <span>{farmer.certificationStatus}</span>
                     </span>
-                    <span className="text-[10px] font-extrabold text-[#164220] group-hover:underline">View Profile →</span>
+                    <span className="text-[10px] font-semibold text-[#164220] group-hover:underline">View Profile →</span>
                   </div>
                 </article>
               ))}
@@ -1286,7 +1367,7 @@ function App() {
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#6A7B67]/15 text-[#6A7B67] mb-3">
               <IconSprout className="w-6 h-6" />
             </div>
-            <h3 className="text-base font-extrabold text-[#2D382C]">No items match your search</h3>
+            <h3 className="text-base font-semibold text-[#2D382C]">No items match your search</h3>
             <p className="mt-1 text-xs text-slate-500 font-medium">
               Try searching for &quot;millets&quot;, &quot;toor dal&quot;, or &quot;ghee&quot;
             </p>
@@ -1322,11 +1403,11 @@ function App() {
         {/* Header Banner */}
         <div className="rounded-3xl bg-gradient-to-r from-[#2D382C] via-[#3A4939] to-[#1E261D] p-6 text-white shadow-xl relative overflow-hidden">
           <div className="relative z-10 max-w-xl space-y-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-extrabold text-[#ECE5D1] border border-white/20">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#ECE5D1] border border-white/20">
               <IconCheck className="w-3.5 h-3.5 text-[#ECE5D1]" />
               100% Verified Organic Growers Network
             </span>
-            <h2 className="text-2xl font-black text-[#ECE5D1] tracking-tight">
+            <h2 className="text-2xl font-semibold text-[#ECE5D1] tracking-tight">
               Meet Our Organic Farmers & Cultivators
             </h2>
             <p className="text-xs text-[#ECE5D1]/80 leading-relaxed">
@@ -1381,12 +1462,12 @@ function App() {
                           alt={farmer.name}
                           className="h-16 w-16 rounded-full border-2 border-white shadow-md bg-white object-cover flex-shrink-0"
                         />
-                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-extrabold text-[#164220] border border-emerald-200">
+                        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-[#164220] border border-emerald-200">
                           {farmerProds.length} Harvest Items
                         </span>
                       </div>
 
-                      <h3 className="text-sm font-extrabold text-gray-900 group-hover:text-[#164220] transition flex items-center gap-1.5">
+                      <h3 className="text-sm font-semibold text-gray-900 group-hover:text-[#164220] transition flex items-center gap-1.5">
                         <span>{farmer.name}</span>
                         <IconCheck className="w-3.5 h-3.5 text-[#164220]" />
                       </h3>
@@ -1401,8 +1482,8 @@ function App() {
                     </div>
 
                     <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-                      <span className="text-[11px] font-extrabold text-[#164220] group-hover:underline flex items-center gap-1">
-                        <span>View LinkedIn Profile</span>
+                      <span className="text-[11px] font-semibold text-[#164220] group-hover:underline flex items-center gap-1">
+                        <span>View Farmer Profile</span>
                         <IconArrowRight className="w-3.5 h-3.5 text-[#164220]" />
                       </span>
                     </div>
@@ -1424,14 +1505,14 @@ function App() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#6A7B67]/15 text-[#6A7B67] mb-3">
             <IconOrders className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-extrabold text-[#2D382C]">Track Your Orders & NimbusPost Status</h2>
+          <h2 className="text-xl font-semibold text-[#2D382C]">Track Your Orders & NimbusPost Status</h2>
           <p className="mt-1 text-xs text-slate-500 font-medium">Please login to view real-time NimbusPost shipment updates.</p>
           <button
             onClick={() => {
               setPostLoginTarget('orders')
               setShowLogin(true)
             }}
-            className="mt-5 rounded-xl bg-[#6A7B67] px-6 py-3 text-xs font-extrabold text-white shadow-glow-sage hover:bg-[#536250] transition flex items-center justify-center gap-2 mx-auto"
+            className="mt-5 rounded-xl bg-[#6A7B67] px-6 py-3 text-xs font-semibold text-white shadow-glow-sage hover:bg-[#536250] transition flex items-center justify-center gap-2 mx-auto"
           >
             <span>Login to View Orders</span>
             <IconArrowRight className="w-4 h-4" />
@@ -1443,7 +1524,7 @@ function App() {
     return (
       <div className="space-y-6 pb-24">
         <div>
-          <h2 className="text-xl font-extrabold text-[#2D382C] tracking-tight">Orders & NimbusPost Live Tracking</h2>
+          <h2 className="text-xl font-semibold text-[#2D382C] tracking-tight">Orders & NimbusPost Live Tracking</h2>
           <p className="text-xs text-slate-600 font-medium">Real-time delivery status synced directly with NimbusPost logistics</p>
         </div>
 
@@ -1458,7 +1539,7 @@ function App() {
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#6A7B67]/15 text-[#6A7B67] mb-3">
               <IconCart className="w-7 h-7" />
             </div>
-            <h3 className="text-base font-extrabold text-[#2D382C]">No orders placed yet</h3>
+            <h3 className="text-base font-semibold text-[#2D382C]">No orders placed yet</h3>
             <p className="mt-1 text-xs text-slate-500 font-medium">Explore farm fresh organic products and place your first order.</p>
             <button
               onClick={() => setActiveView('Home')}
@@ -1485,11 +1566,11 @@ function App() {
                     }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className={`text-xs font-extrabold ${isSelected ? 'text-[#ECE5D1]' : 'text-[#2D382C]'}`}>
+                      <span className={`text-xs font-semibold ${isSelected ? 'text-[#ECE5D1]' : 'text-[#2D382C]'}`}>
                         Order #{ord.orderNumber}
                       </span>
                       <span
-                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase ${
+                        className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase ${
                           ord.status === 'delivered'
                             ? 'bg-[#6A7B67]/40 text-[#ECE5D1] border border-[#6A7B67]'
                             : ord.status === 'out_for_delivery'
@@ -1509,7 +1590,7 @@ function App() {
                           year: 'numeric',
                         })}
                       </span>
-                      <span className="font-extrabold">{formatCurrency(ord.total)}</span>
+                      <span className="font-semibold">{formatCurrency(ord.total)}</span>
                     </div>
                   </button>
                 )
@@ -1525,10 +1606,10 @@ function App() {
                   {/* Header */}
                   <div className="flex items-center justify-between border-b border-[#ECE5D1] pb-4">
                     <div>
-                      <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#6A7B67]">
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-[#6A7B67]">
                         NimbusPost Order Details
                       </span>
-                      <h3 className="text-lg font-extrabold text-[#2D382C]">Order #{activeOrderDetail.order.orderNumber}</h3>
+                      <h3 className="text-lg font-semibold text-[#2D382C]">Order #{activeOrderDetail.order.orderNumber}</h3>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-slate-400 font-medium">Payment Status</p>
@@ -1553,13 +1634,13 @@ function App() {
                     <div className="flex items-center justify-between text-xs">
                       <div>
                         <p className="text-[10px] text-[#ECE5D1]/60">AWB Tracking Reference</p>
-                        <p className="font-mono font-extrabold text-[#ECE5D1]">
+                        <p className="font-mono font-semibold text-[#ECE5D1]">
                           {activeOrderDetail.shipment?.awbNumber ? activeOrderDetail.shipment.awbNumber : 'Pending Admin Dispatch'}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-[10px] text-[#ECE5D1]/60">Current Status</p>
-                        <p className="font-extrabold text-[#ECE5D1] uppercase tracking-wider">
+                        <p className="font-semibold text-[#ECE5D1] uppercase tracking-wider">
                           {activeOrderDetail.shipment?.status ? activeOrderDetail.shipment.status : activeOrderDetail.order.status === 'confirmed' ? 'Awaiting Dispatch' : activeOrderDetail.order.status.replace(/_/g, ' ')}
                         </p>
                       </div>
@@ -1568,7 +1649,7 @@ function App() {
 
                   {/* Stepper */}
                   <div className="space-y-2 pt-2">
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Live Delivery Timeline</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Live Delivery Timeline</h4>
                     <div className="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#ECE5D1]">
                       {[
                         { label: 'Order Placed & Confirmed', key: 'confirmed', desc: 'Received at Farm Hub' },
@@ -1592,7 +1673,7 @@ function App() {
                               {isDone ? <IconCheck className="w-2.5 h-2.5 text-white" /> : ''}
                             </span>
                             <div>
-                              <p className={`text-xs font-extrabold ${isCurrent ? 'text-[#6A7B67]' : isDone ? 'text-[#2D382C]' : 'text-slate-400'}`}>
+                              <p className={`text-xs font-semibold ${isCurrent ? 'text-[#6A7B67]' : isDone ? 'text-[#2D382C]' : 'text-slate-400'}`}>
                                 {step.label}
                               </p>
                               <p className="text-[10px] text-slate-500">{step.desc}</p>
@@ -1610,7 +1691,7 @@ function App() {
 
                   {/* Order Items */}
                   <div className="border-t border-[#ECE5D1] pt-4 space-y-2">
-                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Ordered Products</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Ordered Products</h4>
                     <div className="divide-y divide-[#ECE5D1]">
                       {activeOrderDetail.items.map((item) => (
                         <div key={item.id} className="flex items-center justify-between py-2 text-xs">
@@ -1618,7 +1699,7 @@ function App() {
                             <p className="font-bold text-[#2D382C]">{item.productName}</p>
                             <p className="text-[10px] text-slate-500">Qty: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
                           </div>
-                          <span className="font-extrabold text-[#2D382C]">
+                          <span className="font-semibold text-[#2D382C]">
                             {formatCurrency(Number(item.unitPrice) * item.quantity)}
                           </span>
                         </div>
@@ -1646,14 +1727,14 @@ function App() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#6A7B67]/15 text-[#6A7B67] mb-3">
             <IconUser className="w-8 h-8" />
           </div>
-          <h2 className="text-xl font-extrabold text-[#2D382C]">Your Account</h2>
+          <h2 className="text-xl font-semibold text-[#2D382C]">Your Account</h2>
           <p className="mt-1 text-xs text-slate-500 font-medium">Log in to manage delivery addresses and saved preferences.</p>
           <button
             onClick={() => {
               setPostLoginTarget('profile')
               setShowLogin(true)
             }}
-            className="mt-5 rounded-xl bg-[#6A7B67] px-6 py-3 text-xs font-extrabold text-white shadow-glow-sage hover:bg-[#536250] transition flex items-center justify-center gap-2 mx-auto"
+            className="mt-5 rounded-xl bg-[#6A7B67] px-6 py-3 text-xs font-semibold text-white shadow-glow-sage hover:bg-[#536250] transition flex items-center justify-center gap-2 mx-auto"
           >
             <span>Login to Profile</span>
             <IconArrowRight className="w-4 h-4" />
@@ -1667,11 +1748,11 @@ function App() {
         {/* User Card */}
         <div className="rounded-3xl border border-[#6A7B67]/40 bg-[#2D382C] p-6 text-white shadow-xl flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#6A7B67] text-2xl font-extrabold text-white shadow-glow-sage">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#6A7B67] text-2xl font-semibold text-white shadow-glow-sage">
               <IconUser className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-extrabold text-[#ECE5D1]">{session.user.name || 'Organic Buyer'}</h2>
+              <h2 className="text-lg font-semibold text-[#ECE5D1]">{session.user.name || 'Organic Buyer'}</h2>
               <p className="text-xs text-[#ECE5D1]/80 font-medium">+91 {session.user.phone}</p>
             </div>
           </div>
@@ -1691,7 +1772,7 @@ function App() {
         <div className="rounded-3xl border border-[#6A7B67]/30 bg-white p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-extrabold text-[#2D382C]">Saved Addresses</h3>
+              <h3 className="text-base font-semibold text-[#2D382C]">Saved Addresses</h3>
               <p className="text-xs text-slate-500 font-medium">Your delivery locations with receiver contact details</p>
             </div>
           </div>
@@ -1714,7 +1795,7 @@ function App() {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="rounded-md bg-[#ECE5D1] px-2 py-0.5 text-[10px] font-extrabold text-[#2D382C]">
+                    <span className="rounded-md bg-[#ECE5D1] px-2 py-0.5 text-[10px] font-semibold text-[#2D382C]">
                       {addr.label}
                     </span>
                     <button
@@ -1746,7 +1827,7 @@ function App() {
           {/* Address Form (Add / Edit Mode) */}
           <form onSubmit={saveAddress} className="border-t border-[#ECE5D1] pt-4 space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#6A7B67] flex items-center gap-1.5">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-[#6A7B67] flex items-center gap-1.5">
                 <IconLocation className="w-4 h-4 text-[#6A7B67]" />
                 <span>{editingAddressId ? 'Edit Delivery Address' : 'Add New Delivery Address (Ola Maps Autocomplete)'}</span>
               </h4>
@@ -1895,8 +1976,8 @@ function App() {
       <div className="space-y-8 py-6 max-w-4xl mx-auto text-gray-800 pb-20">
         {/* Hero Banner */}
         <div className="rounded-3xl bg-[#164220] p-8 text-white text-center shadow-lg relative overflow-hidden">
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#D4AF37]">Millet Amma Inspired</span>
-          <h1 className="text-3xl font-extrabold tracking-tight mt-1 mb-3">Our Story & Organic Harvest Philosophy</h1>
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-[#D4AF37]">Millet Amma Inspired</span>
+          <h1 className="text-3xl font-semibold tracking-tight mt-1 mb-3">Our Story & Organic Harvest Philosophy</h1>
           <p className="text-xs sm:text-sm font-medium text-emerald-100 max-w-2xl mx-auto leading-relaxed">
             Connect to Farm was founded with a mission: to bridge the gap between verified local organic farmers in Mandya & Guntur and health-conscious families, delivering unpolished, lab-certified millets straight from harvest.
           </p>
@@ -2005,7 +2086,7 @@ function App() {
             }}
             className="flex items-center gap-1.5 font-display"
           >
-            <span className="text-base sm:text-xl font-black text-[#164220] tracking-tight">Connect To Farm</span>
+            <span className="text-base sm:text-xl font-semibold text-[#164220] tracking-tight">Connect To Farm</span>
             <span className="hidden sm:inline-block text-[9px] font-bold text-slate-400 uppercase tracking-widest border-l border-slate-300 pl-1.5">
               PURE ROOTS
             </span>
@@ -2064,7 +2145,7 @@ function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="mx-auto max-w-5xl px-4 pt-5">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 pt-5">
         {activeView === 'Home' && renderHome()}
         {activeView === 'Search' && renderSearch()}
         {activeView === 'OurStory' && renderOurStory()}
@@ -2081,17 +2162,17 @@ function App() {
             className="flex w-full max-w-md items-center justify-between rounded-2xl bg-[#2D382C] px-5 py-3.5 text-white shadow-2xl border border-[#6A7B67] backdrop-blur-xl"
           >
             <div className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#6A7B67] text-white font-black text-sm">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#6A7B67] text-white font-semibold text-sm">
                 {cartItemCount}
               </span>
               <div className="text-left">
-                <p className="text-xs font-black text-[#ECE5D1]">{formatCurrency(cartTotal)}</p>
+                <p className="text-xs font-semibold text-[#ECE5D1]">{formatCurrency(cartTotal)}</p>
                 <p className="text-[10px] font-bold text-[#ECE5D1]/80">
                   NimbusPost Express Dispatch
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-black text-[#ECE5D1] uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-[#ECE5D1] uppercase tracking-wider">
               <span>View Cart</span>
               <IconArrowRight className="w-4 h-4" />
             </div>
@@ -2116,7 +2197,7 @@ function App() {
                   <IconSprout className="w-4 h-4 fill-current" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-black tracking-wider text-[#ECE5D1] uppercase">Connect To Farm</h3>
+                  <h3 className="text-sm font-semibold tracking-wider text-[#ECE5D1] uppercase">Connect To Farm</h3>
                   <p className="text-[10px] text-[#ECE5D1]/80 font-semibold">Verified Organic Harvest</p>
                 </div>
               </div>
@@ -2134,11 +2215,11 @@ function App() {
               {session ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#164220] text-[#ECE5D1] font-black text-sm shadow-md">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#164220] text-[#ECE5D1] font-semibold text-sm shadow-md">
                       {session.user.name.charAt(0).toUpperCase()}
                     </div>
                     <div className="overflow-hidden">
-                      <p className="text-xs font-black text-[#2D382C] truncate">{session.user.name}</p>
+                      <p className="text-xs font-semibold text-[#2D382C] truncate">{session.user.name}</p>
                       <p className="text-[10px] font-semibold text-slate-500 truncate">{session.user.phone}</p>
                     </div>
                   </div>
@@ -2172,7 +2253,7 @@ function App() {
                       <IconUser className="w-5 h-5 stroke-[2]" />
                     </div>
                     <div>
-                      <p className="text-xs font-extrabold text-[#2D382C]">Welcome Guest</p>
+                      <p className="text-xs font-semibold text-[#2D382C]">Welcome Guest</p>
                       <p className="text-[10px] font-medium text-slate-500">Sign in for orders & checkout</p>
                     </div>
                   </div>
@@ -2181,7 +2262,7 @@ function App() {
                       setMobileMenuOpen(false)
                       setShowLogin(true)
                     }}
-                    className="rounded-full bg-[#164220] px-3.5 py-1.5 text-xs font-black text-[#ECE5D1] shadow-md hover:bg-[#123C1E] transition whitespace-nowrap"
+                    className="rounded-full bg-[#164220] px-3.5 py-1.5 text-xs font-semibold text-[#ECE5D1] shadow-md hover:bg-[#123C1E] transition whitespace-nowrap"
                   >
                     Login
                   </button>
@@ -2193,7 +2274,7 @@ function App() {
             <div className="flex-1 overflow-y-auto p-4 space-y-6">
               {/* Primary Pages Nav */}
               <div className="space-y-1">
-                <p className="px-2 pb-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Navigation</p>
+                <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Navigation</p>
                 
                 <button
                   onClick={() => {
@@ -2290,7 +2371,7 @@ function App() {
                     <IconHeart className={`w-4 h-4 ${wishlistIds.size > 0 ? 'fill-current text-[#164220]' : ''}`} />
                     <span>My Wishlist</span>
                   </span>
-                  <span className="rounded-full bg-[#164220] px-2 py-0.5 text-[10px] font-extrabold text-white">
+                  <span className="rounded-full bg-[#164220] px-2 py-0.5 text-[10px] font-semibold text-white">
                     {wishlistIds.size}
                   </span>
                 </button>
@@ -2314,7 +2395,7 @@ function App() {
 
               {/* Categories Shortcuts */}
               <div className="space-y-2 border-t border-gray-100 pt-4">
-                <p className="px-2 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Explore Categories</p>
+                <p className="px-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Explore Categories</p>
                 <div className="grid grid-cols-1 gap-1.5">
                   {CATEGORIES.map((cat) => (
                     <button
@@ -2374,7 +2455,7 @@ function App() {
                   <IconHeart className="w-5 h-5 fill-current text-[#ECE5D1]" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold tracking-tight text-[#ECE5D1]">Liked Products</h3>
+                  <h3 className="text-base font-semibold tracking-tight text-[#ECE5D1]">Liked Products</h3>
                   <p className="text-[11px] text-[#ECE5D1]/80 font-medium">
                     {wishlistIds.size} {wishlistIds.size === 1 ? 'item' : 'items'} saved in your wishlist
                   </p>
@@ -2405,7 +2486,7 @@ function App() {
               ) : (
                 wishlistedProducts.map((product) => {
                   const quantityInCart = cartQuantityMap[product.id] ?? 0
-                  const imageUrl = product.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
+                  const imageUrl = getProductCropImage(product.name, product.images)
                   const busy = cartBusyProductId === product.id
 
                   return (
@@ -2422,7 +2503,7 @@ function App() {
                         <div>
                           <h4 className="text-xs font-bold text-[#2D382C] line-clamp-1">{product.name}</h4>
                           <p className="text-[10px] text-slate-500 font-medium">Sourced from {product.farmerName || 'Verified Farmer'}</p>
-                          <p className="text-xs font-extrabold text-[#164220] mt-0.5">
+                          <p className="text-xs font-semibold text-[#164220] mt-0.5">
                             Rs. {product.price}.00 <span className="text-[10px] text-slate-400 font-normal">/ {product.unit}</span>
                           </p>
                         </div>
@@ -2433,7 +2514,7 @@ function App() {
                           type="button"
                           onClick={() => void handleAddToCart(product)}
                           disabled={product.stock < 1 || busy}
-                          className="rounded-xl bg-[#164220] hover:bg-[#103318] text-white px-3 py-1.5 text-xs font-extrabold shadow-sm transition disabled:opacity-50"
+                          className="rounded-xl bg-[#164220] hover:bg-[#103318] text-white px-3 py-1.5 text-xs font-semibold shadow-sm transition disabled:opacity-50"
                         >
                           {quantityInCart > 0 ? `In Cart (${quantityInCart})` : 'Add to Cart'}
                         </button>
@@ -2458,7 +2539,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => void handleAddAllWishlistToCart()}
-                  className="w-full rounded-2xl bg-[#164220] hover:bg-[#103318] py-3.5 text-xs font-extrabold text-white shadow-md transition active:scale-98 flex items-center justify-center gap-2"
+                  className="w-full rounded-2xl bg-[#164220] hover:bg-[#103318] py-3.5 text-xs font-semibold text-white shadow-md transition active:scale-98 flex items-center justify-center gap-2"
                 >
                   <IconCart className="w-4 h-4 text-white" />
                   <span>Add All Liked Items to Cart & Clear Wishlist</span>
@@ -2476,7 +2557,7 @@ function App() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-[#6A7B67]/30 bg-[#2D382C] p-4 text-white">
               <div>
-                <h3 className="text-base font-extrabold tracking-tight text-[#ECE5D1]">Express Farm Cart</h3>
+                <h3 className="text-base font-semibold tracking-tight text-[#ECE5D1]">Express Farm Cart</h3>
                 <p className="text-[11px] text-[#ECE5D1]/80 font-medium flex items-center gap-1">
                   <IconTruck className="w-3.5 h-3.5 text-[#ECE5D1]" />
                   <span>NimbusPost EDD: {eddInfo ? eddInfo.edd : 'Tomorrow'}</span>
@@ -2528,29 +2609,36 @@ function App() {
                 cartItems.map((item) => (
                   <div
                     key={item.productId}
-                    className="flex items-center justify-between rounded-2xl border border-[#6A7B67]/25 p-3 shadow-sm"
+                    className="flex items-center justify-between rounded-2xl border border-slate-200/90 p-3 shadow-2xs hover:border-[#164220]/40 transition bg-white gap-3"
                   >
-                    <div className="flex-1">
-                      <h4 className="text-xs font-bold text-[#2D382C]">{item.name}</h4>
-                      <p className="text-[11px] font-semibold text-[#6A7B67]">
-                        {formatCurrency(item.price)} / {item.unit}
+                    <div className="w-12 h-12 rounded-xl overflow-hidden bg-neutral-100 shrink-0 border border-slate-200">
+                      <img
+                        src={getProductCropImage(item.name, item.images)}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-[#2D382C] truncate">{item.name}</h4>
+                      <p className="text-[11px] font-semibold text-[#164220]">
+                        {formatCurrency(item.price)} <span className="text-[10px] text-slate-400 font-normal">/ {item.unit}</span>
                       </p>
                     </div>
 
                     {/* Stepper */}
-                    <div className="flex items-center rounded-xl bg-[#2D382C] px-1 py-1 text-white">
+                    <div className="flex items-center rounded-xl bg-[#164220] px-1 py-1 text-white shadow-2xs">
                       <button
                         onClick={() => void changeCartQuantity(item.productId, item.quantity - 1)}
                         disabled={cartBusyProductId === item.productId}
-                        className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#6A7B67] text-xs font-extrabold"
+                        className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-[#103318] text-xs font-semibold cursor-pointer"
                       >
                         -
                       </button>
-                      <span className="w-6 text-center text-xs font-bold">{item.quantity}</span>
+                      <span className="w-6 text-center text-xs font-bold font-numeric">{item.quantity}</span>
                       <button
                         onClick={() => void changeCartQuantity(item.productId, item.quantity + 1)}
                         disabled={cartBusyProductId === item.productId}
-                        className="flex h-6 w-6 items-center justify-center rounded-md hover:bg-[#6A7B67] text-xs font-extrabold"
+                        className="flex h-6 w-6 items-center justify-center rounded-lg hover:bg-[#103318] text-xs font-semibold cursor-pointer"
                       >
                         +
                       </button>
@@ -2562,7 +2650,7 @@ function App() {
               {/* Address Selector */}
               {cartItems.length > 0 && (
                 <div className="mt-4 rounded-2xl border border-[#6A7B67]/30 bg-[#ECE5D1]/30 p-3.5 space-y-2">
-                  <div className="flex items-center justify-between text-xs font-extrabold text-[#2D382C]">
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#2D382C]">
                     <span className="flex items-center gap-1">
                       <IconLocation className="w-3.5 h-3.5 text-[#6A7B67]" />
                       <span>Delivery Address</span>
@@ -2615,14 +2703,14 @@ function App() {
                       {deliveryFee === 0 ? 'FREE' : formatCurrency(FLAT_DELIVERY_FEE)}
                     </span>
                   </div>
-                  <div className="flex justify-between text-[#6A7B67] font-extrabold bg-[#6A7B67]/15 p-2.5 rounded-xl border border-[#6A7B67]/30 my-1">
+                  <div className="flex justify-between text-[#6A7B67] font-semibold bg-[#6A7B67]/15 p-2.5 rounded-xl border border-[#6A7B67]/30 my-1">
                     <span className="flex items-center gap-1.5">
                       <IconTruck className="w-4 h-4 text-[#6A7B67]" />
                       <span>Expected Delivery (NimbusPost)</span>
                     </span>
                     <span>{eddLoading ? 'Calculating...' : eddInfo ? eddInfo.edd : 'Tomorrow'}</span>
                   </div>
-                  <div className="flex justify-between border-t border-[#6A7B67]/20 pt-2 text-sm font-extrabold text-[#2D382C]">
+                  <div className="flex justify-between border-t border-[#6A7B67]/20 pt-2 text-sm font-semibold text-[#2D382C]">
                     <span>Grand Total</span>
                     <span>{formatCurrency(cartTotal)}</span>
                   </div>
@@ -2633,7 +2721,7 @@ function App() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={placingOrder || cartItems.length === 0}
-                  className="w-full rounded-2xl bg-[#6A7B67] py-3.5 text-sm font-extrabold text-white shadow-glow-sage hover:bg-[#536250] disabled:opacity-50 transition active:scale-[0.98] flex items-center justify-center gap-2"
+                  className="w-full rounded-2xl bg-[#6A7B67] py-3.5 text-sm font-semibold text-white shadow-glow-sage hover:bg-[#536250] disabled:opacity-50 transition active:scale-[0.98] flex items-center justify-center gap-2"
                 >
                   <span>{placingOrder ? 'Initiating Razorpay Checkout...' : `Proceed to Pay ${formatCurrency(cartTotal)}`}</span>
                   <IconArrowRight className="w-4 h-4" />
@@ -2648,7 +2736,7 @@ function App() {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         aria-label="Scroll to top"
-        className="fixed bottom-16 right-4 z-40 h-10 w-10 rounded-full border-2 border-[#164220] bg-white text-[#164220] shadow-md flex items-center justify-center font-extrabold text-base hover:bg-emerald-50 transition active:scale-90"
+        className="fixed bottom-16 right-4 z-40 h-10 w-10 rounded-full border-2 border-[#164220] bg-white text-[#164220] shadow-md flex items-center justify-center font-semibold text-base hover:bg-emerald-50 transition active:scale-90"
       >
         ↑
       </button>
@@ -2693,7 +2781,7 @@ function App() {
         if (!selectedProduct) return null
         const quantityInCart = cartQuantityMap[selectedProduct.id] ?? 0
         const busy = cartBusyProductId === selectedProduct.id
-        const imageUrl = selectedProduct.images?.[0] || 'https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80'
+        const imageUrl = getProductCropImage(selectedProduct.name, selectedProduct.images)
         const coopPrice = (Number(selectedProduct.price) * 0.9).toFixed(2)
         const coopSavings = (Number(selectedProduct.price) * 0.1).toFixed(2)
 
@@ -2724,8 +2812,8 @@ function App() {
 
               {/* Image & Thumbnails */}
               <div className="space-y-2">
-                <div className="rounded-2xl bg-[#f4f5f6] p-6 flex items-center justify-center h-64 sm:h-72">
-                  <img src={imageUrl} alt={selectedProduct.name} className="max-h-full object-contain drop-shadow-sm" />
+                <div className="rounded-2xl bg-neutral-100 p-2 flex items-center justify-center h-64 sm:h-72 overflow-hidden border border-slate-200">
+                  <img src={imageUrl} alt={selectedProduct.name} className="h-full w-full object-cover rounded-xl" />
                 </div>
                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                   <div className="h-14 w-14 rounded-xl border-2 border-[#164220] p-1 bg-white flex items-center justify-center cursor-pointer">
@@ -2750,7 +2838,7 @@ function App() {
 
               {/* Price & Stock */}
               <div className="flex items-center gap-3 font-numeric">
-                <span className="text-2xl font-extrabold text-slate-950">₹ {selectedProduct.price}.00</span>
+                <span className="text-2xl font-semibold text-slate-950">₹ {selectedProduct.price}.00</span>
                 <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-[#164220] border border-emerald-200 flex items-center gap-1">
                   ✓ {selectedProduct.stock > 0 ? `${selectedProduct.stock} Items In stock` : 'In Stock'}
                 </span>
@@ -2760,10 +2848,10 @@ function App() {
               <div className="rounded-2xl bg-[#0a3a1b] p-4 text-white space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
                       🍃 CO-OP MEMBER
                     </span>
-                    <span className="text-sm font-extrabold text-white">₹{coopPrice}</span>
+                    <span className="text-sm font-semibold text-white">₹{coopPrice}</span>
                     <span className="text-xs text-emerald-200 font-medium">· save ₹{coopSavings}</span>
                   </div>
                   <a href="#coop" className="text-xs font-bold text-emerald-300 hover:underline">
@@ -2880,8 +2968,8 @@ function App() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#164220]">Delivery Hub</span>
-                <h2 className="text-lg font-extrabold text-gray-900 tracking-tight">Select Delivery Location</h2>
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-[#164220]">Delivery Hub</span>
+                <h2 className="text-lg font-semibold text-gray-900 tracking-tight">Select Delivery Location</h2>
               </div>
               <button
                 onClick={() => {
@@ -2905,7 +2993,7 @@ function App() {
                   <IconLocation className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-black text-white">Use Current GPS Location</p>
+                  <p className="text-xs font-semibold text-white">Use Current GPS Location</p>
                   <p className="text-[10px] text-emerald-200 font-medium">Auto-detect city, area & pincode</p>
                 </div>
               </div>
@@ -3016,7 +3104,7 @@ function App() {
         </div>
       )}
 
-      {/* LinkedIn Farmer Profile Modal Overlay */}
+      {/* Farmer Profile Modal Overlay */}
       {selectedFarmer && (
         <FarmerProfileModal
           farmer={selectedFarmer}

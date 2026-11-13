@@ -15,6 +15,7 @@ export type Bindings = {
   NIMBUSPOST_SECRET: string
   NIMBUSPOST_WEBHOOK_SECRET: string
   OLA_MAPS_API_KEY: string
+  SARVAM_API_KEY: string
   MEDIA_BUCKET: R2Bucket
   RATE_LIMIT_KV: KVNamespace
 }

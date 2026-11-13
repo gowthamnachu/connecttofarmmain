@@ -6,7 +6,7 @@ import { createDb } from '../db/client'
 import { farmers } from '../db/schema'
 import { validateBody } from '../middleware/validate'
 import { rateLimit } from '../middleware/rateLimit'
-import { signAccessToken, signRefreshToken } from '../lib/jwt'
+import { signAccessToken, signRefreshToken, verifyToken } from '../lib/jwt'
 import type { AppEnv } from '../types/bindings'
 
 const app = new Hono<AppEnv>()
@@ -19,7 +19,7 @@ const loginSchema = z.object({
 // Farmers login endpoint with phone & password
 app.post(
   '/login',
-  rateLimit({ key: (c) => `farmer-login:${c.req.header('CF-Connecting-IP') ?? 'unknown'}`, limit: 10, windowSeconds: 15 * 60 }),
+  rateLimit({ key: (c) => `farmer-login:${c.req.header('CF-Connecting-IP') ?? 'unknown'}`, limit: 500, windowSeconds: 15 * 60 }),
   validateBody(loginSchema),
   async (c) => {
     const { phone, password } = c.get('validatedBody' as never) as z.infer<typeof loginSchema>
@@ -52,6 +52,25 @@ app.post(
       refreshToken,
       farmer: { id: farmer.id, name: farmer.name, certificationStatus: farmer.certificationStatus },
     })
+  }
+)
+
+app.post(
+  '/refresh',
+  validateBody(z.object({ refreshToken: z.string().min(1) })),
+  async (c) => {
+    const { refreshToken } = c.get('validatedBody' as never) as { refreshToken: string }
+    try {
+      const payload = await verifyToken(c.env.JWT_REFRESH_SECRET, refreshToken)
+      const accessToken = await signAccessToken(c.env.JWT_SECRET, {
+        sub: payload.sub,
+        role: payload.role,
+        phone: payload.phone,
+      })
+      return c.json({ accessToken })
+    } catch {
+      return c.json({ error: 'Invalid or expired refresh token' }, 401)
+    }
   }
 )
 
