@@ -32,13 +32,171 @@ export interface IndicCropDefinition {
 }
 
 export const INDIC_CROPS: IndicCropDefinition[] = [
+  // 1. Foxtail Millet (కొర్రలు)
   {
-    keys: ['వరి', 'బియ్యం', 'వరి ధాన్యం', 'వరిధాన్యం', 'ధాన్యం', 'సోనా మసూరి', 'paddy', 'rice', 'sona masoori', 'sona masuri'],
-    name: 'Rice / Paddy (వరి)',
-    teluguShort: 'బియ్యం',
-    categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&auto=format&fit=crop&q=80',
+    keys: ['కొర్ర బియ్యం', 'కొర్ర బియ్యము', 'కొర్రలు', 'కొర్ర', 'foxtail millet', 'foxtail', 'korralu', 'korra'],
+    name: 'Foxtail Millet (కొర్రలు)',
+    teluguShort: 'కొర్రలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&auto=format&fit=crop&q=80',
   },
+  // 2. Browntop Millet (అండుకొర్రలు) - Must match before Foxtail Millet
+  {
+    keys: [
+      'అండుకొర్ర బియ్యం',
+      'అండు కొర్ర బియ్యం',
+      'అండుకొర్రలు',
+      'అండు కొర్రలు',
+      'అండుకొర్ర',
+      'అండు కొర్ర',
+      'browntop millet',
+      'browntop',
+      'andukorralu',
+      'andu korralu',
+    ],
+    name: 'Browntop Millet (అండుకొర్రలు)',
+    teluguShort: 'అండుకొర్రలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 3. Finger Millet / Ragi (రాగులు)
+  {
+    keys: ['రాగి పిండి', 'రాగులు', 'రాగి', 'తైదలు', 'తైద', 'ragi', 'finger millet', 'ragulu'],
+    name: 'Ragi / Finger Millet (రాగులు)',
+    teluguShort: 'రాగులు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 4. Jowar / Sorghum (జొన్నలు)
+  {
+    keys: [
+      'తెల్ల జొన్నలు',
+      'పచ్చ జొన్నలు',
+      'జొన్న పిండి',
+      'జొన్న రవ్వ',
+      'జొన్నలు',
+      'జొన్న',
+      'jowar',
+      'sorghum',
+      'jonnalu',
+      'jonna',
+    ],
+    name: 'Jowar / Sorghum (జొన్నలు)',
+    teluguShort: 'జొన్నలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 5. Bajra / Pearl Millet (సజ్జలు)
+  {
+    keys: ['సజ్జ పిండి', 'సజ్జ రవ్వ', 'సజ్జలు', 'సజ్జ', 'bajra', 'pearl millet', 'sajjalu', 'sajja'],
+    name: 'Bajra / Pearl Millet (సజ్జలు)',
+    teluguShort: 'సజ్జలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 6. Kodo Millet (అరికెలు)
+  {
+    keys: ['అరిక బియ్యం', 'అరికె బియ్యం', 'అరికెలు', 'అరికలు', 'అరికె', 'అరిక', 'kodo millet', 'kodo', 'arikelu', 'arikalu'],
+    name: 'Kodo Millet (అరికెలు)',
+    teluguShort: 'అరికెలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 7. Little Millet (సామలు)
+  {
+    keys: [
+      'సామ బియ్యం',
+      'సామె బియ్యం',
+      'సామలు',
+      'సామెలు',
+      'సామ',
+      'సామె',
+      'little millet',
+      'samalu',
+      'samelu',
+      'sama',
+    ],
+    name: 'Little Millet (సామలు)',
+    teluguShort: 'సామలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 8. Barnyard Millet (ఊదలు)
+  {
+    keys: [
+      'ఊద బియ్యం',
+      'వూద బియ్యం',
+      'ఊదలు',
+      'వూదలు',
+      'ఊద',
+      'వూద',
+      'barnyard millet',
+      'barnyard',
+      'oodalu',
+      'ooda',
+      'sanwa',
+    ],
+    name: 'Barnyard Millet (ఊదలు)',
+    teluguShort: 'ఊదలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 9. Proso Millet (వరిగెలు) - Must match before Rice (వరి)
+  {
+    keys: ['వరిగ బియ్యం', 'వరిగెలు', 'బరిగెలు', 'వరిగె', 'బరిగె', 'వరిగ', 'proso millet', 'proso', 'varigelu', 'barigelu'],
+    name: 'Proso Millet (వరిగెలు)',
+    teluguShort: 'వరిగెలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 10. Siridhanya / Millets Basket (సిరిధాన్యాలు)
+  {
+    keys: [
+      'సిరిధాన్యాలు',
+      'సిరి ధాన్యాలు',
+      'చిరుధాన్యాలు',
+      'చిరు ధాన్యాలు',
+      'మిల్లెట్స్',
+      'మిల్లెట్',
+      'మిల్లెట్లు',
+      'siridhanya',
+      'millets basket',
+      'millets',
+    ],
+    name: 'Siridhanya Millets (సిరిధాన్యాలు)',
+    teluguShort: 'సిరిధాన్యాలు',
+    categorySlug: 'millets',
+    defaultImage: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&auto=format&fit=crop&q=80',
+  },
+  // 11. Maize / Corn (మొక్కజొన్న) - Must match before Jowar (జొన్నలు)
+  {
+    keys: ['మొక్కజొన్న కండీలు', 'మొక్కజొన్న', 'మొక్క జొన్న', 'corn', 'maize', 'mokka jonna', 'mokkajonna'],
+    name: 'Maize / Corn (మొక్కజొన్న)',
+    teluguShort: 'మొక్కజొన్న',
+    categorySlug: 'grains',
+    defaultImage: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&auto=format&fit=crop&q=80',
+  },
+  // 12. Groundnut (వేరుశనగ) - Must match before Chana (శనగలు)
+  {
+    keys: [
+      'వేరుశనగ గుళ్ళు',
+      'వేరుశనగ పప్పు',
+      'వేరుశనగ',
+      'వేరు శనగ',
+      'పల్లీలు',
+      'పల్లీ',
+      'groundnut',
+      'peanut',
+      'groundnuts',
+      'peanuts',
+      'verusenaga',
+    ],
+    name: 'Groundnut (వేరుశనగ)',
+    teluguShort: 'వేరుశనగ',
+    categorySlug: 'pulses',
+    defaultImage: 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=800&auto=format&fit=crop&q=80',
+  },
+  // 13. Toor Dal (కందులు)
   {
     keys: ['కందులు', 'కందిపప్పు', 'కంది పప్పు', 'కంది', 'తోర్ దాల్', 'తోర్', 'toor dal', 'toor', 'red gram', 'pigeon pea'],
     name: 'Toor Dal (కందులు)',
@@ -46,6 +204,7 @@ export const INDIC_CROPS: IndicCropDefinition[] = [
     categorySlug: 'pulses',
     defaultImage: 'https://images.unsplash.com/photo-1585994192701-f1a505c8574a?w=800&auto=format&fit=crop&q=80',
   },
+  // 14. Moong Dal (పెసలు)
   {
     keys: ['పెసలు', 'పెసరపప్పు', 'పెసర పప్పు', 'పెసర', 'moong dal', 'moong', 'green gram'],
     name: 'Moong Dal (పెసలు)',
@@ -53,6 +212,7 @@ export const INDIC_CROPS: IndicCropDefinition[] = [
     categorySlug: 'pulses',
     defaultImage: 'https://images.unsplash.com/photo-1515543237350-b3eea1ec8082?w=800&auto=format&fit=crop&q=80',
   },
+  // 15. Urad Dal (మినుములు)
   {
     keys: ['మినుములు', 'మినపప్పు', 'మినప పప్పు', 'మినప', 'urad dal', 'urad', 'black gram'],
     name: 'Urad Dal (మినుములు)',
@@ -60,6 +220,7 @@ export const INDIC_CROPS: IndicCropDefinition[] = [
     categorySlug: 'pulses',
     defaultImage: 'https://images.unsplash.com/photo-1599307767316-776533da941c?w=800&auto=format&fit=crop&q=80',
   },
+  // 16. Chana / Chickpeas (శనగలు)
   {
     keys: ['శనగలు', 'శనగపప్పు', 'శనగ పప్పు', 'శనగ', 'సెనగలు', 'సెనగ', 'chana dal', 'chana', 'chickpeas', 'bengal gram'],
     name: 'Chana / Chickpeas (శనగలు)',
@@ -67,108 +228,101 @@ export const INDIC_CROPS: IndicCropDefinition[] = [
     categorySlug: 'pulses',
     defaultImage: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&auto=format&fit=crop&q=80',
   },
+  // 17. Wheat (గోధుమలు)
   {
-    keys: ['గోధుమలు', 'గోధుమ పిండి', 'గోధుమ', 'wheat', 'sharbati'],
+    keys: ['గోధుమలు', 'గోధుమ పిండి', 'గోధుమ రవ్వ', 'గోధుమ', 'wheat', 'sharbati'],
     name: 'Wheat (గోధుమలు)',
     teluguShort: 'గోధుమలు',
     categorySlug: 'grains',
     defaultImage: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&auto=format&fit=crop&q=80',
   },
+  // 18. Rice / Paddy (వరి)
   {
-    keys: ['జొన్నలు', 'జొన్న', 'jowar', 'sorghum'],
-    name: 'Jowar (జొన్నలు)',
-    teluguShort: 'జొన్నలు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['రాగులు', 'రాగి పిండి', 'రాగి', 'తైదలు', 'ragi', 'finger millet'],
-    name: 'Ragi (రాగులు)',
-    teluguShort: 'రాగులు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['కొర్రలు', 'కొర్ర', 'foxtail millet', 'foxtail'],
-    name: 'Foxtail Millet (కొర్రలు)',
-    teluguShort: 'కొర్రలు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['సజ్జలు', 'సజ్జ', 'bajra', 'pearl millet'],
-    name: 'Bajra / Pearl Millet (సజ్జలు)',
-    teluguShort: 'సజ్జలు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['అరికెలు', 'అరికలు', 'kodo millet'],
-    name: 'Kodo Millet (అరికెలు)',
-    teluguShort: 'అరికెలు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['సామలు', 'సామ', 'little millet'],
-    name: 'Little Millet (సామలు)',
-    teluguShort: 'సామలు',
-    categorySlug: 'millets',
-    defaultImage: 'https://images.unsplash.com/photo-1607672632458-9eb56696346b?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['మొక్కజొన్న', 'మొక్క జొన్న', 'corn', 'maize'],
-    name: 'Maize / Corn (మొక్కజొన్న)',
-    teluguShort: 'మొక్కజొన్న',
+    keys: [
+      'వరి ధాన్యం',
+      'వరిధాన్యం',
+      'వరి బియ్యం',
+      'సోనా మసూరి బియ్యం',
+      'సోనా మసూరి',
+      'సోనామసూరి',
+      'బాస్మతి బియ్యం',
+      'బాస్మతి',
+      'వరి',
+      'బియ్యం',
+      'paddy',
+      'rice',
+      'sona masoori',
+      'sona masuri',
+      'basmati',
+    ],
+    name: 'Rice / Paddy (వరి)',
+    teluguShort: 'బియ్యం',
     categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&auto=format&fit=crop&q=80',
+    defaultImage: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&auto=format&fit=crop&q=80',
   },
+  // 19. Sesame Seeds (నువ్వులు)
   {
-    keys: ['వేరుశనగ', 'వేరు శనగ', 'పల్లీలు', 'పల్లీ', 'groundnut', 'peanut'],
-    name: 'Groundnut (వేరుశనగ)',
-    teluguShort: 'వేరుశనగ',
-    categorySlug: 'pulses',
-    defaultImage: 'https://images.unsplash.com/photo-1567894340315-735d7c361db0?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['పసుపు', 'turmeric'],
-    name: 'Organic Turmeric (పసుపు)',
-    teluguShort: 'పసుపు',
-    categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['మిరప', 'మిరపకాయలు', 'మిర్చి', 'ఎండుమిర్చి', 'chilli', 'red chilli'],
-    name: 'Red Chilli (మిరప)',
-    teluguShort: 'మిరప',
-    categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['ఉల్లిపాయలు', 'ఉల్లి', 'ఉల్లిగడ్డలు', 'onion'],
-    name: 'Fresh Onion (ఉల్లిపాయలు)',
-    teluguShort: 'ఉల్లిపాయలు',
-    categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1508747703725-719777637510?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['టమాట', 'టమాటో', 'టమోటా', 'నాటు టమాటా', 'tomato'],
-    name: 'Country Tomato (నాటు టమాటా)',
-    teluguShort: 'టమాటా',
-    categorySlug: 'grains',
-    defaultImage: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&auto=format&fit=crop&q=80',
-  },
-  {
-    keys: ['నువ్వులు', 'నువ్వు', 'sesame'],
+    keys: ['తెల్ల నువ్వులు', 'నల్ల నువ్వులు', 'నువ్వులు', 'నువ్వు', 'sesame'],
     name: 'Sesame Seeds (నువ్వులు)',
     teluguShort: 'నువ్వులు',
     categorySlug: 'oils',
     defaultImage: 'https://images.unsplash.com/photo-1599307767316-776533da941c?w=800&auto=format&fit=crop&q=80',
   },
+  // 20. Organic Turmeric (పసుపు)
+  {
+    keys: ['పసుపు కొమ్ములు', 'పసుపు పొడి', 'పసుపు', 'turmeric'],
+    name: 'Organic Turmeric (పసుపు)',
+    teluguShort: 'పసుపు',
+    categorySlug: 'grains',
+    defaultImage: 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=800&auto=format&fit=crop&q=80',
+  },
+  // 21. Red Chilli (మిరప)
+  {
+    keys: ['ఎండుమిర్చి', 'ఎండు మిర్చి', 'మిరపకాయలు', 'మిరప', 'మిర్చి', 'chilli', 'red chilli'],
+    name: 'Red Chilli (మిరప)',
+    teluguShort: 'మిరప',
+    categorySlug: 'grains',
+    defaultImage: 'https://images.unsplash.com/photo-1588252303782-cb80119abd6d?w=800&auto=format&fit=crop&q=80',
+  },
+  // 22. Fresh Onion (ఉల్లిపాయలు)
+  {
+    keys: ['ఉల్లిపాయలు', 'ఉల్లిగడ్డలు', 'ఉల్లి', 'onion'],
+    name: 'Fresh Onion (ఉల్లిపాయలు)',
+    teluguShort: 'ఉల్లిపాయలు',
+    categorySlug: 'grains',
+    defaultImage: 'https://images.unsplash.com/photo-1508747703725-719777637510?w=800&auto=format&fit=crop&q=80',
+  },
+  // 23. Country Tomato (నాటు టమాటా)
+  {
+    keys: ['నాటు టమాటా', 'నాటు టమోటా', 'టమాట', 'టమాటో', 'టమోటా', 'tomato'],
+    name: 'Country Tomato (నాటు టమాటా)',
+    teluguShort: 'టమాటా',
+    categorySlug: 'grains',
+    defaultImage: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=800&auto=format&fit=crop&q=80',
+  },
 ]
 
+// Pre-sorted list of keys descending by length for longest-match-first disambiguation
+interface SortedCropKey {
+  key: string
+  length: number
+  crop: IndicCropDefinition
+}
+
+const SORTED_CROP_KEYS: SortedCropKey[] = []
+for (const crop of INDIC_CROPS) {
+  for (const k of crop.keys) {
+    SORTED_CROP_KEYS.push({
+      key: k.toLowerCase().trim(),
+      length: k.trim().length,
+      crop,
+    })
+  }
+}
+SORTED_CROP_KEYS.sort((a, b) => b.length - a.length)
+
 // Telugu spoken number words to integer mapping
-const TELUGU_NUMBER_WORDS: Array<{ word: string; value: number }> = [
+export const TELUGU_NUMBER_WORDS: Array<{ word: string; value: number }> = [
   { word: 'రెండు వందలు', value: 200 },
   { word: 'రెండువందలు', value: 200 },
   { word: 'ఐదు వందలు', value: 500 },
@@ -209,48 +363,109 @@ const TELUGU_NUMBER_WORDS: Array<{ word: string; value: number }> = [
   { word: 'ఒకటి', value: 1 },
 ]
 
-export function extractQuantity(text: string): { stock: number; unit: string } | null {
-  // 1. Matches digits with quantity units e.g. "50 కేజీలు", "50 kg", "10 బస్తాలు", "5 క్వింటాళ్లు"
-  const digitMatch = text.match(
-    /(\d+)\s*(కేజీలు|కేజీ|కిలోలు|కిలో|kg|kgs|క్వింటాళ్ళు|క్వింటాలు|క్వింటాల్|క్వింటా|quintal|quintals|బస్తాలు|బస్తా|మూటలు|మూట|bags|bag|టన్నులు|టన్ను|ton|tons)?/i
-  )
-  if (digitMatch && digitMatch[1]) {
-    const qty = parseInt(digitMatch[1], 10)
-    if (qty > 0) {
-      let unit = 'kg'
-      const rawUnit = (digitMatch[2] || '').toLowerCase()
-      if (rawUnit.includes('క్వింటా') || rawUnit.includes('quintal')) unit = 'quintal'
-      else if (rawUnit.includes('బస్తా') || rawUnit.includes('మూట') || rawUnit.includes('bag')) unit = 'bag'
-      else if (rawUnit.includes('టన్ను') || rawUnit.includes('ton')) unit = 'ton'
-      return { stock: qty, unit }
+export function hasCorrectionIntent(text: string): boolean {
+  return /(?:కాదు|మార్చు|మార్చండి|మారుద్దాం|బదులు|బదులుగా|వేరే|తప్పు|రద్దు|change|instead|not|different|wrong)/i.test(text)
+}
+
+export function hasExplicitPriceIndicator(text: string): boolean {
+  return /(?:ధర|రేటు|rate|price|రూపాయలు|రూపాయల|రూపాయ|రూ\.?|rs\.?|inr|\/\-)/i.test(text)
+}
+
+export function extractCrop(text: string, currentCropName?: string): IndicCropDefinition | null {
+  const lowerText = text.toLowerCase()
+  const isCorrection = hasCorrectionIntent(text)
+
+  // If farmer explicitly asks to correct or change an existing crop:
+  // Search for the new crop that differs from currentCropName
+  if (currentCropName && isCorrection) {
+    for (const item of SORTED_CROP_KEYS) {
+      if (lowerText.includes(item.key) && item.crop.name !== currentCropName) {
+        return item.crop
+      }
     }
   }
 
-  // 2. Matches Telugu number words with or without unit
-  for (const item of TELUGU_NUMBER_WORDS) {
-    const pattern = new RegExp(
-      `${item.word}\\s*(కేజీలు|కేజీ|కిలోలు|కిలో|kg|kgs|క్వింటాళ్ళు|క్వింటాల్|క్వింటా|బస్తాలు|బస్తా|మూటలు|మూట|bags|bag)?`,
-      'i'
-    )
-    const match = text.match(pattern)
-    if (match) {
-      let unit = 'kg'
-      if (match[1]) {
-        const rawUnit = match[1].toLowerCase()
-        if (rawUnit.includes('క్వింటా')) unit = 'quintal'
-        else if (rawUnit.includes('బస్తా') || rawUnit.includes('మూట')) unit = 'bag'
-      }
-      return { stock: item.value, unit }
+  // If crop is already set and NO correction intent was detected:
+  // Retain the existing crop to prevent multi-turn overwrites (e.g. during price or confirmation)
+  if (currentCropName && !isCorrection) {
+    return null
+  }
+
+  // Initial crop extraction: search sorted keys (longest first)
+  for (const item of SORTED_CROP_KEYS) {
+    if (lowerText.includes(item.key)) {
+      return item.crop
     }
   }
 
   return null
 }
 
-export function extractPrice(text: string, currentDraft: SarvamDraftProduct): string | null {
+export function extractQuantity(
+  text: string,
+  currentStock?: number
+): { stock: number; unit: string; rawValue: number } | null {
+  // 1. Matches digits with mandatory quantity unit (e.g. "50 కేజీలు", "50 kg", "10 బస్తాలు", "5 క్వింటాళ్లు")
+  const explicitMatches = text.matchAll(
+    /(\d+)\s*(కేజీలు|కేజీ|కిలోలు|కిలో|kg|kgs|క్వింటాళ్ళు|క్వింటాలు|క్వింటాల్|క్వింటా|quintal|quintals|బస్తాలు|బస్తా|మూటలు|మూట|bags|bag|టన్నులు|టన్ను|ton|tons)/gi
+  )
+
+  for (const match of explicitMatches) {
+    const qty = parseInt(match[1], 10)
+    const rawUnit = match[2].toLowerCase()
+    if (qty > 0) {
+      let unit = 'kg'
+      if (rawUnit.includes('క్వింటా') || rawUnit.includes('quintal')) unit = 'quintal'
+      else if (rawUnit.includes('బస్తా') || rawUnit.includes('మూట') || rawUnit.includes('bag')) unit = 'bag'
+      else if (rawUnit.includes('టన్ను') || rawUnit.includes('ton')) unit = 'ton'
+      return { stock: qty, unit, rawValue: qty }
+    }
+  }
+
+  // 2. Telugu number words with mandatory quantity unit
+  for (const item of TELUGU_NUMBER_WORDS) {
+    const pattern = new RegExp(
+      `${item.word}\\s*(కేజీలు|కేజీ|కిలోలు|కిలో|kg|kgs|క్వింటాళ్ళు|క్వింటాలు|క్వింటాల్|క్వింటా|quintal|quintals|బస్తాలు|బస్తా|మూటలు|మూట|bags|bag|టన్నులు|టన్ను|ton|tons)`,
+      'i'
+    )
+    const match = text.match(pattern)
+    if (match) {
+      const rawUnit = match[1].toLowerCase()
+      let unit = 'kg'
+      if (rawUnit.includes('క్వింటా') || rawUnit.includes('quintal')) unit = 'quintal'
+      else if (rawUnit.includes('బస్తా') || rawUnit.includes('మూట') || rawUnit.includes('bag')) unit = 'bag'
+      else if (rawUnit.includes('టన్ను') || rawUnit.includes('ton')) unit = 'ton'
+      return { stock: item.value, unit, rawValue: item.value }
+    }
+  }
+
+  // 3. Bare digits: ONLY IF currentStock is NOT set AND text does NOT have price indicators
+  if (!currentStock && !hasExplicitPriceIndicator(text)) {
+    const bareMatch = text.match(/(?:^|[^\d.])(\d+)(?:\s*(?:ఉన్నాయి|ఉంది|చేర్చండి|మాత్రమే|ready)?)(?:$|[^\d.])/i)
+    if (bareMatch && bareMatch[1]) {
+      const qty = parseInt(bareMatch[1], 10)
+      if (qty > 0) return { stock: qty, unit: 'kg', rawValue: qty }
+    }
+
+    // Bare Telugu number word without price
+    for (const item of TELUGU_NUMBER_WORDS) {
+      if (text.includes(item.word)) {
+        return { stock: item.value, unit: 'kg', rawValue: item.value }
+      }
+    }
+  }
+
+  return null
+}
+
+export function extractPrice(
+  text: string,
+  currentDraft: SarvamDraftProduct,
+  consumedQtyValue?: number
+): string | null {
   // 1. Explicit price indicators: "120 రూపాయలు", "రూ. 120", "ధర 120", "రేటు 120", "120/-", "120 rs"
   const explicitMatch = text.match(
-    /(?:ధర|రేటు|రూపాయలు|రూ\.?|rs\.?|inr)\s*[:=]?\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*(?:రూపాయలు|రూ\.?|\/\-|rs\.?|inr)/i
+    /(?:ధర|రేటు|rate|price|రూపాయలు|రూపాయల|రూపాయ|రూ\.?|rs\.?|inr)\s*[:=]?\s*(\d+(?:\.\d{1,2})?)|(\d+(?:\.\d{1,2})?)\s*(?:రూపాయలు|రూపాయల|రూపాయ|రూ\.?|\/\-|rs\.?|inr)/i
   )
   if (explicitMatch) {
     const p = explicitMatch[1] || explicitMatch[2]
@@ -258,39 +473,43 @@ export function extractPrice(text: string, currentDraft: SarvamDraftProduct): st
   }
 
   // 2. "కిలో 120" or "కిలో 120 రూపాయలు" (price per unit)
-  const perKgMatch = text.match(/(?:కిలో|కేజీ|పర్ kg)\s*(\d+(?:\.\d{1,2})?)/i)
+  const perKgMatch = text.match(/(?:కిలో|కేజీ|పర్\s*kg|పర్\s*కేజీ|కేజీకి|కిలోకి)\s*[:=]?\s*(\d+(?:\.\d{1,2})?)/i)
   if (perKgMatch && perKgMatch[1]) {
     const p = perKgMatch[1]
     const num = parseFloat(p)
-    // Avoid confusing quantity "50 కిలోలు" with price unless explicit currency is used or stock is different
-    if (num > 0 && (!currentDraft.stock || num !== currentDraft.stock || /రూ|ధర|రేటు/.test(text))) {
+    if (num > 0 && num !== consumedQtyValue) {
       return p
     }
   }
 
-  // 3. Spoken Telugu price words e.g. "వంద రూపాయలు", "యాభై రూపాయలు"
+  // 3. Spoken Telugu price words e.g. "వంద రూపాయలు", "యాభై రూపాయలు", "ధర ఎనభై"
   for (const item of TELUGU_NUMBER_WORDS) {
     if (
-      text.includes(`${item.word} రూపాయలు`) ||
+      text.includes(`${item.word} రూపాయ`) ||
       text.includes(`రూపాయలు ${item.word}`) ||
       text.includes(`ధర ${item.word}`) ||
-      text.includes(`రేటు ${item.word}`)
+      text.includes(`రేటు ${item.word}`) ||
+      text.includes(`కిలో ${item.word}`)
     ) {
       return item.value.toString()
     }
   }
 
-  // 4. If stock is already known and price is missing, and the farmer says a bare number without quantity units
+  // 4. Bare digits when stock is already known:
+  // Must not consume the same number that was just consumed as quantity in this turn
   const hasQuantityUnit = /(?:కేజీలు|కేజీ|కిలోలు|కిలో|క్వింటా|బస్తా|మూట|bags|kg)/i.test(text)
   if (currentDraft.stock && !currentDraft.price && !hasQuantityUnit) {
-    const bareDigits = text.match(/^\s*(\d+(?:\.\d{1,2})?)\s*$/)
+    const bareDigits = text.match(/(?:^|[^\d.])(\d+(?:\.\d{1,2})?)(?:$|[^\d.])/i)
     if (bareDigits && bareDigits[1]) {
       const num = parseFloat(bareDigits[1])
-      if (num > 0) return bareDigits[1]
+      if (num > 0 && num !== consumedQtyValue) {
+        return bareDigits[1]
+      }
     }
-    // Also check single Telugu number word
+
+    // Single Telugu number word
     for (const item of TELUGU_NUMBER_WORDS) {
-      if (text.trim() === item.word) {
+      if (text.includes(item.word) && item.value !== consumedQtyValue) {
         return item.value.toString()
       }
     }
@@ -356,43 +575,42 @@ export function extractIndicAgriculturalEntities(
 ): SarvamDraftProduct {
   const draft = { ...currentDraft }
   if (!draft.unit) draft.unit = 'kg'
-  const lowerText = text.toLowerCase()
 
-  // 1. Identify crop if mentioned in latest speech
-  for (const crop of INDIC_CROPS) {
-    if (crop.keys.some((k) => lowerText.includes(k.toLowerCase()))) {
-      // If a brand new crop is mentioned that differs from current draft, start a fresh slot for it
-      if (draft.name && draft.name !== crop.name) {
-        draft.name = crop.name
-        draft.stock = undefined
-        draft.price = undefined
-      } else {
-        draft.name = crop.name
-      }
+  // 1. Identify crop with longest-key-first matching & overwrite protection
+  const matchedCrop = extractCrop(text, draft.name)
+  if (matchedCrop) {
+    if (draft.name && draft.name !== matchedCrop.name && hasCorrectionIntent(text)) {
+      draft.name = matchedCrop.name
+      draft.stock = undefined
+      draft.price = undefined
+    } else if (!draft.name) {
+      draft.name = matchedCrop.name
+    }
 
-      const matchedCat =
-        categoriesList.find(
-          (c) =>
-            c.slug.toLowerCase().includes(crop.categorySlug.toLowerCase()) ||
-            c.name.toLowerCase().includes(crop.categorySlug.toLowerCase())
-        ) || categoriesList[0]
-      if (matchedCat) {
-        draft.categoryId = matchedCat.id
-        draft.categoryName = matchedCat.name
-      }
-      break
+    const matchedCat =
+      categoriesList.find(
+        (c) =>
+          c.slug.toLowerCase().includes(matchedCrop.categorySlug.toLowerCase()) ||
+          c.name.toLowerCase().includes(matchedCrop.categorySlug.toLowerCase())
+      ) || categoriesList[0]
+
+    if (matchedCat) {
+      draft.categoryId = matchedCat.id
+      draft.categoryName = matchedCat.name
     }
   }
 
-  // 2. Identify quantity/stock
-  const qty = extractQuantity(text)
+  // 2. Identify quantity (passing current draft stock to prevent bare number collisions)
+  const qty = extractQuantity(text, draft.stock)
+  let consumedQtyValue: number | undefined = undefined
   if (qty) {
     draft.stock = qty.stock
     draft.unit = qty.unit
+    consumedQtyValue = qty.rawValue
   }
 
-  // 3. Identify price
-  const price = extractPrice(text, draft)
+  // 3. Identify price (passing initial draft and consumed quantity to prevent dual-filling)
+  const price = extractPrice(text, currentDraft, consumedQtyValue)
   if (price) {
     draft.price = price
   }
@@ -509,8 +727,8 @@ export async function sarvamDialogueAgent(
   } else {
     // Initial greeting or general inquiry
     teluguReply =
-      'నమస్కారం! కనెక్ట్‌టుఫార్మ్ వాయిస్ అసిస్టెంట్‌కి స్వాగతం. మీరు ఏ పంట చేర్చాలనుకుంటున్నారు? ఉదాహరణకు బియ్యం, కందులు, లేదా గోధుమలు.'
-    englishSummary = 'Welcome! Which crop would you like to list? (e.g. Rice, Toor Dal, Wheat)'
+      'నమస్కారం! కనెక్ట్‌టుఫార్మ్ వాయిస్ అసిస్టెంట్‌కి స్వాగతం. మీరు ఏ పంట చేర్చాలనుకుంటున్నారు? ఉదాహరణకు కొర్రలు, రాగులు, లేదా కందులు.'
+    englishSummary = 'Welcome! Which crop would you like to list? (e.g. Foxtail Millet, Ragi, or Toor Dal)'
   }
 
   // Step 4: Best-effort enrichment via Sarvam LLM
